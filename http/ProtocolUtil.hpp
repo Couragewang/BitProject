@@ -229,7 +229,7 @@ class ProtocolUtil{
             std::stringstream ss;
             ss << code_;
             header_ = "HTTP/1.0 ";
-            header_ += ss.str() + " OK\n";
+            header_ += ss.str() + " OK\"; //add code
             if(!cgi_){
                 std::string &path_ = (ct->http_request).path;
                 std::string &suffix_ = (ct->http_request).suffix;
@@ -280,6 +280,26 @@ class ProtocolUtil{
                 query_string_.push_back(ch);
             }
         }
+        static void EchoError(Context *&ct)
+        {
+            int sock_ = ct->sock;
+            status_t code_ = (ct->http_response).code;
+            bool &cgi_ = (ct->http_request).cgi;
+            std::string &path_ = (ct->http_request).path;
+            std::string &suffix_ = (ct->http_request).suffix;
+            int file_size_ = (ct->http_request).file_size;
+
+            path_ = "wwwroot/404.html";
+            suffix_ = ".html";
+            cgi_ = false;
+
+            struct stat st;
+            stat(path_.c_str(), &st);
+            file_size_ = st.st_size;
+
+
+            ProcessNonCgi(Context *&ct);
+        }
 };
 
 class Entry{
@@ -292,6 +312,7 @@ class Entry{
             pipe(output);
 
             int &sock_ = ct->sock;
+            status_t code_ = (ct->http_response).code;
             std::string &arg = (ct->http_request).query_string;
             std::stringstream ss;
             ss << arg.size();
@@ -301,6 +322,8 @@ class Entry{
 
             pid_t id = fork();
             if(id < 0){
+                code_ = NOT_FOUND;
+                return;
             }
             else if(id == 0){
                 std::string &path_ = (ct->http_request).path;
@@ -408,6 +431,9 @@ class Entry{
             }
             HttpProcess(ct);
         end:
+            if(code_ != OK){
+                EchoError(ct);
+            }
             close(ct->sock);
             delete ct;
         }
