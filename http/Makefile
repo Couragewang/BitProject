@@ -6,6 +6,15 @@ TestCGI:TestCGI.cpp
 
 Httpd:Httpd.cpp
 	g++ -o $@ $^ -std=c++11 -lpthread #-static #-g -fpermissive
+
 .PHONY:clean
 clean:
-	rm -f Httpd TestCGI
+	rm -rf Httpd TestCGI output
+
+.PHONY:output
+output:
+	@mkdir output
+	@cp -rf wwwroot output
+	@cp Httpd output
+	@cp start.sh output
+	@cp TestCGI output/wwwroot

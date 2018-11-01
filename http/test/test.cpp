@@ -5,8 +5,17 @@
 
 int main()
 {
-    std::string s("\n");
-    s.substr(2);
+    std::unordered_map<std::string, std::string> m{
+        {
+            ".html","text/html"
+        },
+        {
+            ".css", "text/css"
+        }
+    };
+    std::cout << m[".css"] << std::endl;
+//    std::string s("\n");
+//    s.substr(2);
 
     //std::string s;
     //std::string s1 = "abcd";

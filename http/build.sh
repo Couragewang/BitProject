@@ -1,2 +1,6 @@
-make clean;
+#!/bin/bash
+
+
+make clean
 make
+make output

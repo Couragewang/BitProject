@@ -31,7 +31,7 @@ typedef std::unordered_map<std::string, std::string> Param_t;
 Param_t g_text_type{
     {".html", "text/html\n"},
     {".js", "application/x-javascript\n"},
-    {".css", "text/html\n"},
+    {".css", "text/css\n"},
 };
 
 class Request{
@@ -49,7 +49,7 @@ class Request{
         int content_length;
         int file_size;
     public:
-        Request():cgi(false)
+        Request():cgi(false),content_length(0),file_size(0)
         {}
         ~Request()
         {}
@@ -60,10 +60,11 @@ class Response{
         status_t code;
         std::string header;
         std::string header_body;
+        std::string text;
 
         int content_length;
     public:
-        Response():code(OK)
+        Response():code(OK),content_length(0)
         {}
         ~Response()
         {}
@@ -221,24 +222,37 @@ class ProtocolUtil{
         }
         static void BuildResponse(Context *&ct)
         {
-            std::string &path_ = (ct->http_request).path;
+            bool &cgi_ = (ct->http_request).cgi;
             std::string &header_ = (ct->http_response).header;
-            std::string &suffix_ = (ct->http_request).suffix;
             std::string &header_body_ = (ct->http_response).header_body;
-            int &size_ = (ct->http_request).file_size;
             status_t &code_ = (ct->http_response).code;
-
             std::stringstream ss;
             ss << code_;
-
             header_ = "HTTP/1.0 ";
             header_ += ss.str() + " OK\n";
-            header_body_ = "Content-Type: ";
-            header_body_ += g_text_type[suffix_];
-            header_body_ += "Content-Length: ";
-            ss.str("");
-            ss << size_<< "\n\n";
-            header_body_ += ss.str();
+            if(!cgi_){
+                std::string &path_ = (ct->http_request).path;
+                std::string &suffix_ = (ct->http_request).suffix;
+                int &size_ = (ct->http_request).file_size;
+
+                header_body_ = "Content-Type: ";
+                header_body_ += g_text_type[suffix_];
+                //LOG(DEBUG, header_body_ + suffix_);
+                header_body_ += "Content-Length: ";
+                ss.str("");
+                ss << size_<< "\n\n";
+                header_body_ += ss.str();
+
+                LOG(DEBUG, suffix_);
+                LOG(DEBUG, header_body_);
+            }else{
+                int &len_ = (ct->http_response).content_length;
+                ss.str("");
+                ss <<  len_ << "\n\n";
+                header_body_ = "Content-Type: text/html\n";
+                header_body_ += "Content-Length: ";
+                header_body_ += ss.str();
+            }
         }
         static void ReadAll(Context *&ct)
         {
@@ -317,9 +331,21 @@ class Entry{
                 }
 
                 char c;
+                int &len_ = (ct->http_response).content_length;
+                std::string &text_ = (ct->http_response).text;
                 while(read(output[0], &c, 1) > 0){
-                    send(sock_, &c, 1, 0);
+                    text_.push_back(c);
+                    len_++;
                 }
+                ProtocolUtil::BuildResponse(ct);
+
+                std::string &header_ = (ct->http_response).header;
+                std::string &header_body_ = (ct->http_response).header_body;
+
+                send(sock_, header_.c_str(), header_.size(), 0);
+                send(sock_, header_body_.c_str(), header_body_.size(), 0);
+                send(sock_, text_.c_str(),text_.size(), 0);
+
 
                 waitpid(id, NULL, 0);
                 close(input[1]);
