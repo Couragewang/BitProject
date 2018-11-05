@@ -220,6 +220,17 @@ class ProtocolUtil{
 
             return true;
         }
+        static std::string CodeToErrString(status_t &code)
+        {
+            switch(code){
+                case 200:
+                    return " OK\n";
+                case 404:
+                    return " NOT_FOUND\n";
+                default:
+                    return " UNKNOW\n";
+            }
+        }
         static void BuildResponse(Context *&ct)
         {
             bool &cgi_ = (ct->http_request).cgi;
@@ -229,7 +240,9 @@ class ProtocolUtil{
             std::stringstream ss;
             ss << code_;
             header_ = "HTTP/1.0 ";
-            header_ += ss.str() + " OK\"; //add code
+            header_ += ss.str();
+            //header_ += " OK\n"; //add code
+            header_ += CodeToErrString(code_); //add code
             if(!cgi_){
                 std::string &path_ = (ct->http_request).path;
                 std::string &suffix_ = (ct->http_request).suffix;
@@ -280,6 +293,10 @@ class ProtocolUtil{
                 query_string_.push_back(ch);
             }
         }
+};
+
+class Entry{
+    public:
         static void EchoError(Context *&ct)
         {
             int sock_ = ct->sock;
@@ -298,12 +315,8 @@ class ProtocolUtil{
             file_size_ = st.st_size;
 
 
-            ProcessNonCgi(Context *&ct);
+            ProcessNonCgi(ct);
         }
-};
-
-class Entry{
-    public:
         static void ProcessCgi(Context *&ct)
         {
             int input[2];
@@ -384,6 +397,7 @@ class Entry{
             std::string &header_ = (ct->http_response).header;
             std::string &header_body_ = (ct->http_response).header_body;
             std::string &path_ = (ct->http_request).path;
+
             int fd_ =  open(path_.c_str(), O_RDONLY);
             if(fd_ < 0){
                 code_ = NOT_FOUND;
