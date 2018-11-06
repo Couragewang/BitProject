@@ -1,0 +1,45 @@
+rm -rf Httpd TestCGI output
+g++ -o Httpd Httpd.cpp -std=c++11 -lpthread #-static #-g -fpermissive
+In file included from Httpd.hpp:8:0,
+                 from Httpd.cpp:1:
+ProtocolUtil.hpp: In constructor ‘Request::Request()’:
+ProtocolUtil.hpp:52:30: error: class ‘Request’ does not have any field named ‘content_length’
+         Request():cgi(false),content_length(0),file_size(0)
+                              ^
+ProtocolUtil.hpp: In constructor ‘Response::Response()’:
+ProtocolUtil.hpp:65:29: error: class ‘Response’ does not have any field named ‘content_length’
+         Response():code(OK),content_length(0)
+                             ^
+ProtocolUtil.hpp: In static member function ‘static int ProtocolUtil::GetLine(Context*&)’:
+ProtocolUtil.hpp:105:13: error: ‘Resquest’ was not declared in this scope
+             Resquest &rq_ = ct->http_request;
+             ^
+ProtocolUtil.hpp:105:23: error: ‘rq_’ was not declared in this scope
+             Resquest &rq_ = ct->http_request;
+                       ^
+ProtocolUtil.hpp: In static member function ‘static void ProtocolUtil::HeaderBodyParse(Context*&, std::string&)’:
+ProtocolUtil.hpp:192:59: error: ‘class Request’ has no member named ‘content_length’
+                 int &content_length_ = (ct->http_request).content_length;
+                                                           ^
+ProtocolUtil.hpp: In static member function ‘static void ProtocolUtil::ReadAll(Context*&)’:
+ProtocolUtil.hpp:301:32: error: ‘class Request’ has no member named ‘content_length’
+                 int len_ = rq_.content_length;
+                                ^
+ProtocolUtil.hpp: In static member function ‘static void Entry::EchoError(Context*&)’:
+ProtocolUtil.hpp:345:45: error: cannot call member function ‘void ProtocolUtil::Make404(Context*&)’ without object
+                     ProtocolUtil::Make404(ct);
+                                             ^
+ProtocolUtil.hpp: In static member function ‘static void Entry::ProcessCgi(Context*&)’:
+ProtocolUtil.hpp:366:13: error: ‘Rsponse’ was not declared in this scope
+             Rsponse &rsp_ = ct->http_response;
+             ^
+ProtocolUtil.hpp:366:22: error: ‘rsp_’ was not declared in this scope
+             Rsponse &rsp_ = ct->http_response;
+                      ^
+ProtocolUtil.hpp: In static member function ‘static void Entry::HttpProcess(Context*&)’:
+ProtocolUtil.hpp:470:31: error: ‘rsp’ was not declared in this scope
+             status_t &code_ = rsp.code;
+                               ^
+make: *** [Httpd] Error 1
+cp: cannot stat ‘Httpd’: No such file or directory
+make: *** [output] Error 1

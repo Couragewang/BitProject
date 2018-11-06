@@ -18,7 +18,9 @@
 #include <arpa/inet.h>
 #include "Log.hpp"
 
+#define HTTP_VERSION "HTTP/1.0 "
 #define HTTP_ROOT "wwwroot"
+#define PAGE_404 "wwwroot/404.html" 
 #define HOME_PAGE "index.html"
 
 typedef enum{
@@ -32,54 +34,6 @@ Param_t g_text_type{
     {".html", "text/html\n"},
     {".js", "application/x-javascript\n"},
     {".css", "text/css\n"},
-};
-
-class Request{
-    public:
-        std::string line;
-        std::string method;
-        std::string url;
-        std::string http_version;
-        Param_t header_body;
-
-        std::string path;
-        std::string suffix;
-        std::string query_string;
-        bool cgi;
-        int content_length;
-        int file_size;
-    public:
-        Request():cgi(false),content_length(0),file_size(0)
-        {}
-        ~Request()
-        {}
-};
-
-class Response{
-    public:
-        status_t code;
-        std::string header;
-        std::string header_body;
-        std::string text;
-
-        int content_length;
-    public:
-        Response():code(OK),content_length(0)
-        {}
-        ~Response()
-        {}
-};
-
-class Context{
-    public:
-        int sock;
-        Request http_request;
-        Response http_response;
-    public:
-        Context(int sock_):sock(sock_)
-        {}
-        ~Context()
-        {}
 };
 
 class StringUtil{
@@ -101,141 +55,7 @@ class StringUtil{
 
 class ProtocolUtil{
     public:
-        static int GetLine(Context *&ct)
-        {
-            int &sock_ = ct->sock;
-            Resquest &rq_ = ct->http_request;
-            std::string &line_ = rq_.line;
-
-            char c = 'x';
-            while(c != '\n'){
-                ssize_t s = recv(sock_, &c, 1, 0);
-                if(s > 0){
-                    if(c == '\r'){
-                        recv(sock_, &c, 1, MSG_PEEK);
-                        if(c == '\n'){
-                            recv(sock_, &c, 1, 0);
-                        }
-                        else{
-                            c = '\n';
-                        }
-                    }
-                    line_.push_back(c);
-                }
-                else{
-                    return line_.size();
-                }
-            }
-        }
-        static void RequestLineParse(Context *&ct)
-        {
-            Request &rq_ = ct->http_request;
-
-            std::string &method_ = rq_.method;
-            std::string &url_ = rq_.url;
-            std::string &http_version_ = rq_.http_version;
-            std::string &line_ = rq_.line;
-
-            std::stringstream ss(line_);
-
-            ss >> method_ >> url_ >> http_version_;
-        }
-        static bool CheckMethodVaild(Context *&ct)
-        {
-            Request &rq_ = ct->http_request;
-            
-            std::string &method_ = rq_.method;
-            bool &cgi_ = rq_.cgi;
-            cgi_ = false;
-
-            if((cgi_ = (strcasecmp(method_.c_str(), "POST") == 0)) || strcasecmp(method_.c_str(), "GET") == 0){
-                return true;
-            }
-            return false;
-        }
-        static void RequestUrlParse(Context *&ct)
-        {
-            Request &rq_ = ct->http_request;
-
-            std::string &path_ = rq_.path;
-            std::string &query_string_ = rq_.query_string;
-            std::string &url_ = rq_.url;
-            bool &cgi_ = rq_.cgi;
-        
-            int pos = url_.find("?");
-            if(std::string::npos != pos){
-                query_string_ = url_.substr(pos+1);
-                url_ = url_.substr(0, pos);
-                cgi_ = true;
-            }
-            path_ = HTTP_ROOT;
-            path_ += url_;
-            if(path_[path_.size() - 1] == '/'){
-                path_ += HOME_PAGE;
-            }
-        }
-        static void HeaderBodyParse(Context *&ct, std::string &body)
-        {
-            Param_t &header_body_ = (ct->http_request).header_body;
-            std::size_t pos = 0;
-            std::size_t start = 0;
-            while( start < body.size() && std::string::npos != (pos = body.find('\n', start)) ){
-                std::string sub_ = body.substr(start, pos - start);
-                StringUtil::MakeKV(header_body_, sub_);
-                start = pos + 1;
-            }
-            std::string &method_ = (ct->http_request).method;
-            if(strcasecmp(method_.c_str(), "POST") == 0){
-                int &content_length_ = (ct->http_request).content_length;
-                std::string cl_ = header_body_["Content-Length"];
-                if(!cl_.empty()){
-                    content_length_ = -1;
-                }else{
-                    std::stringstream ss;
-                    ss << cl_;
-                    ss >> content_length_;
-                }
-            }
-        }
-        static bool CheckPathVaild(Context *&ct)
-        {
-            Request &rq_ = ct->http_request;
-            Response &rsp_ = ct->http_response;
-
-            std::string &path_ = rq_.path;
-            std::string &suffix_ = rq_.suffix;
-            int &size_ = rq_.file_size;
-            bool &cgi_ = rq_.cgi;
-            status_t &code_ = rsp_.code;
-            struct stat st;
-
-            if(stat(path_.c_str(), &st)){
-                code_ = NOT_FOUND;
-                return false;
-            }
-            else{
-                if(S_ISDIR(st.st_mode)){
-                    path_ += "/";
-                    path_ += HOME_PAGE;
-                }else if((st.st_mode & S_IXUSR) ||\
-                        (st.st_mode & S_IXGRP) ||\
-                        (st.st_mode & S_IXOTH)){
-                    cgi_ = true;
-                }else{
-                    //DO NOTHING
-                }
-            }
-            size_ = st.st_size;
-            std::size_t pos_ = path_.find_last_of('.');
-            if(pos_ != std::string::npos){
-                suffix_ = path_.substr(pos_); //.css .html .js
-            }else{
-                suffix_ = "";
-            }
-
-            return true;
-        }
-        static std::string CodeToErrString(status_t &code)
+        static std::string CodeToStringDesc(status_t &code)
         {
             switch(code){
                 case 200:
@@ -246,146 +66,317 @@ class ProtocolUtil{
                     return " UNKNOW\n";
             }
         }
-        static void BuildResponse(Context *&ct)
-        {
-            Request &rq_ = ct->http_request;
-            Response &rsp_ = ct->http_response;
-
-            bool &cgi_ = rq_.cgi;
-            std::string &header_ = rsp_.header;
-            std::string &header_body_ = rsp_.header_body;
-            status_t &code_ = rsp_.code;
-
-            std::stringstream ss;
-            ss << code_;
-
-            header_ = "HTTP/1.0 ";
-            header_ += ss.str();
-            //header_ += " OK\n"; //add code
-            header_ += CodeToErrString(code_); //add code
-            if(!cgi_){
-
-                std::string &path_ = rq_.path;
-                std::string &suffix_ = rq_.suffix;
-                int &size_ = rq_.file_size;
-
-                header_body_ = "Content-Type: ";
-                header_body_ += g_text_type[suffix_];
-                //LOG(DEBUG, header_body_ + suffix_);
-                header_body_ += "Content-Length: ";
-                
-                ss.str("");
-                ss << size_<< "\n\n";
-                header_body_ += ss.str();
-
-            }else{
-                int &len_ = (ct->http_response).content_length;
-                ss.str("");
-                ss <<  len_ << "\n\n";
-                header_body_ = "Content-Type: text/html\n";
-                header_body_ += "Content-Length: ";
-                header_body_ += ss.str();
-            }
-        }
-        static void ReadAll(Context *&ct)
-        {
-            int &sock_ = ct->sock;
-            Request &rq_ = ct->http_request;
-            Response &rsp_ = ct->http_response;
-
-            int len_ = rq_.content_length;
-            std::string &method_ = rq_.method;
-            std::string &query_string_ = rq_.query_string;
-            status_t code_ = rsp_.code;
-
-            std::string &line_ = rq_.line;
-            line_ = "";
-            
-            std::string tmp_;
-            while(line_ != "\n"){
-                GetLine(ct);
-                tmp_ += line_;
-            }
-            HeaderBodyParse(ct, tmp_);
-            if( strcasecmp(method_.c_str(), "POST") == 0 ){
-                char ch;
-                ssize_t s_;
-                while( len_ > 0){
-                    s_ = recv(sock_, &ch, 1, 0);
-                    if(s_ <= 0){
-                        break;
-                    }
-                    len_--;
-                    query_string_.push_back(ch);
-                }
-                if(len_ != 0){
-                    code_ = NOT_FOUND;
-                }
-            }
-        }
 };
 
-class Entry{
+class Request{
     public:
-        static void EchoError(Context *&ct)
+        std::string rq_line;
+        std::string rq_header;
+        std::string blank_line;
+        std::string rq_text;
+        bool is_done;
+    public:
+        std::string method;
+        std::string url;
+        std::string http_version;
+        Param_t header_kv;
+        std::string path;
+        std::string rq_param;
+        std::string resource_suffix;
+        int content_length;
+        int resource_size;
+        bool cgi;
+    public:
+        Request():cgi(false),resource_size(-1),content_length(-1),blank_line("\n"), is_done(false)
+        {}
+        //提取method，url，http version
+        void RequestLineParse()
         {
-            int sock_ = ct->sock;
-            status_t code_ = (ct->http_response).code;
-            bool &cgi_ = (ct->http_request).cgi;
-            std::string &path_ = (ct->http_request).path;
-            std::string &suffix_ = (ct->http_request).suffix;
-            int file_size_ = (ct->http_request).file_size;
+            std::stringstream ss(rq_line);
+            ss >> method >> url >> http_version;
+        }
+        //检测方法是否合法，设置cgi
+        bool IsMethodVaild()
+        {
+            if((cgi = (strcasecmp(method.c_str(), "POST") == 0)) || strcasecmp(method.c_str(), "GET") == 0){
+                return true;
+            }
+            return false;
+        }
+        //分离url中资源路径，是否有参,设置CGI
+        void RequestUrlParse()
+        {
+            int pos = url.find("?");
+            if(std::string::npos != pos){
+                rq_param = url.substr(pos+1);
+                url = url.substr(0, pos);
+                cgi_ = true;
+            }
+            path = HTTP_ROOT;
+            path += url;
+            if(path[path.size() - 1] == '/'){
+                path += HOME_PAGE;
+            }
+        }
+        //检测资源路径合法性，设置CGI，填充资源后缀
+        bool IsPathVaild()
+        {
+            struct stat st;
+            if(stat(path.c_str(), &st)){
+                return false;
+            }else{
+                if(S_ISDIR(st.st_mode)){
+                    path += "/";
+                    path += HOME_PAGE;
+                }else if((st.st_mode & S_IXUSR) ||\
+                        (st.st_mode & S_IXGRP) ||\
+                        (st.st_mode & S_IXOTH)){
+                    cgi = true;
+                }else{
+                    //DO NOTHING
+                }
+            }
+            resource_size = st.st_size;
+            std::size_t pos_ = path.find_last_of('.');
+            if(pos_ != std::string::npos){
+                resource_suffix = path.substr(pos_); //.css .html .js
+            }else{
+                resource_suffix = ".html"; //默认.html
+            }
+            return true;
+        }
+        //逐行解析，转化kv，存入unordered_map. POST方法，提取content_length
+        void HeaderParse()
+        {
+            std::size_t pos = 0;
+            std::size_t start = 0;
+            while( start < rq_header.size() && std::string::npos != (pos = rq_header.find('\n', start)) ){
+                std::string sub_ = rq_header.substr(start, pos - start);
+                StringUtil::MakeKV(header_kv, sub_);
+                start = pos + 1;
+            }
+            if(strcasecmp(method.c_str(), "POST") == 0){
+                std::string cl_ = header_kv["Content-Length"];
+                if(cl_.empty()){
+                    content_length = -1;
+                }else{
+                    std::stringstream ss;
+                    ss << cl_;
+                    ss >> content_length;
+                }
+            }
+        }
+        ~Request()
+        {}
+};
 
-            path_ = "wwwroot/404.html";
+class Response{
+    public:
+        std::string rsp_line;
+        std::string rsp_header;
+        std::string blank_line;
+        std::string rsp_text;
+    public:
+        status_t code;
+        int content_length;
+        std::string resource_suffix;
+        int fd;
+    //    bool cgi;
+
+    public:
+        Response():code(OK),blank_line("\n"), fd(-1)//,cgi(false)
+        {}
+        void BuildResponseHeader()
+        {
+            std::stringstream ss;
+            ss << code;
+
+            rsp_line  = HTTP_VERSION;
+            rsp_line += ss.str();
+            rsp_line += ProtocolUtil::CodeToStringDesc(code);
+
+            rsp_header  = "Content-Type: ";
+            rsp_header += g_text_type[resource_suffix];
+
+            rsp_header += "Content-Length: ";
+            ss.str("");
+            ss << content_length<< "\n";
+            rsp_header += ss.str();
+            
+            rsp_header += blank_line;
+        }
+        void Make404()
+        {
+            std::string &path_ = rq_.path;
+            std::string &suffix_ = rq_.suffix;
+            int file_size_ = rq_.file_size;
+            bool &cgi_ = rq_.cgi;
+
+            path_ = PAGE_404;
             suffix_ = ".html";
             cgi_ = false;
 
             struct stat st;
             stat(path_.c_str(), &st);
             file_size_ = st.st_size;
+        }
+        ~Response()
+        {}
+};
+
+class Connect{
+    private:
+        int sock;
+    public:
+        connect(int sock_):sock(sock_)
+        {}
+        //读取请求行或者任意请求行
+        int ReadOneLine(std::string &line_)
+        {
+            char c = 'x';
+            while(c != '\n'){
+                ssize_t s = recv(sock, &c, 1, 0);
+                if(s > 0){
+                    if(c == '\r'){
+                        recv(sock, &c, 1, MSG_PEEK);
+                        if(c == '\n'){
+                            recv(sock, &c, 1, 0);
+                        }
+                        else{
+                            c = '\n';
+                        }
+                    }
+                    line_.push_back(c);
+                }
+                else{
+                    break;
+                }
+            }
+            return line_.size();
+        }
+        //读取请求包头,包括空行
+        void ReadHeader(std::string &header_)
+        {
+            std::string line_ = "";
+            while(line_ != "\n"){
+                ReadOneLine(line_);
+                header_ += line_;
+            }
+        }
+        //读取请求正文
+        bool ReadText(std::string &text_, int content_length_)
+        {
+                char c_;
+                ssize_t s_;
+                while( content_length_ > 0 ){
+                    s_ = recv(sock, &c_, 1, 0);
+                    if(s_ <= 0){
+                        break;
+                    }
+                    content_length_--;
+                    text_.push_back(c_);
+                }
+                if(content_length_ != 0){
+                    return false;
+                }
+                return true;
+        }
+        void SendResponseHeader(Response *&rsp_)
+        {
+            std::string &rsp_line_ = rsp_->rsp_line;
+            std::string &rsp_header_ = rsp->rsp_header;
+
+            send(sock, rsp_line_.c_str(), rsp_line_.size(), 0);
+            send(sock, rsp_header_.c_str(), rsp_header.size(), 0);
+        }
+        void SendResponseText(Response *&rsp_, bool is_cgi_)
+        {
+            std::string &text_ = rsp_->rsp_text;
+
+            if(is_cgi_){
+                send(sock, text_.c_str(),text_.size(), 0);
+            }else{
+                sendfile(sock, rsp_->fd, NULL, rsp_->content_length);
+            }
+        }
+
+        ~connect()
+        {
+            close(sock);
+        }
+};
 
 
+
+class Entry{
+    public:
+        static void ProcessError(Connect *&conn_, Request *&rq_, Response &*rsp_);
+        {
+            switch(rsp_->code){
+                case 404:
+                    rsp_->Make404();
+                    break;
+                case 501:
+                    break;
+                case 503:
+                    break;
+                default:
+                    break;
+            }
             ProcessNonCgi(ct);
         }
-        static void ProcessCgi(Context *&ct)
+        //处理非CGI请求
+        void ProcessNonCgi(Connect *&conn_, Request *&rq_, Response *&rsp_)
         {
+            std::string &path_ = rq_->path;
+            int &fd_ = rsp_->fd;
+            fd_ =  open(path_.c_str(), O_RDONLY);
+            if(fd_ < 0){
+                rsp_->code = NOT_FOUND;
+                return;
+            }
+            
+            rsp_->content_length = rq_->resource_size;
+            rsp_->resource_suffix  = rq_->resource_suffix;
+
+            rsp_->BuildResponseHeader();
+            conn_->SendResponseHeader(rsp_);
+            conn_->SendResponseText(rsp_, false);
+            close(fd_);
+        }
+        static void ProcessCgi(Connect *&conn_, Request *&rq_, Response *&rsp_)
+        {
+            std::string &param = rq_->rq_param;
+            int param_size_ = param.size();
+
+            std::stringstream ss;
+            ss << param_size_;
+            std::string str_param_size_ = ss.str();
+
+            //LOG(DEBUG, param);
             int input[2];
             int output[2];
             pipe(input);
             pipe(output);
 
-            int &sock_ = ct->sock;
-
-            Request &rq_ = ct->http_request;
-            Rsponse &rsp_ = ct->http_response;
-
-            status_t code_ = rsp_.code;
-            std::string &param = rq_.query_string;
-
-            std::stringstream ss;
-            ss << param.size();
-            std::string param_size_ = ss.str();
-
-            LOG(DEBUG, param);
-
             pid_t id = fork();
             if(id < 0){
-                code_ = NOT_FOUND;
+                rsp->code = NOT_FOUND;
                 return;
-            }
-            else if(id == 0){
-                std::string &path_ = (ct->http_request).path;
-                LOG(DEBUG, path_);
-
+            }else if(id == 0){ //child
+                //LOG(DEBUG, path_);
                 close(input[1]); // child read
                 close(output[0]); //child write
-
                 dup2(input[0], 0);
                 dup2(output[1], 1);
 
+
                 std::string content_length_env_ = "Content_Length=";
-                content_length_env_ += param_size_;
+                content_length_env_ += str_param_size_;
                 putenv((char*)content_length_env_.c_str());
+
+                std::string &path_ = rq_->path;
+
                 execl(path_.c_str(), path_.c_str(), NULL);
                 exit(1);
             }
@@ -393,115 +384,87 @@ class Entry{
                 close(input[0]);
                 close(output[1]);
 
-                int num = param.size();
                 int total = 0;
                 ssize_t s = 0;
                 const char *str = param.c_str();
-                while( total != num && (s = write(input[1], str + total, num - total)) > 0 ){
+
+                while( total != param_size_ && (s = write(input[1], str + total, param_size_ - total)) > 0 ){
                     total += s;
                 }
 
-                char c;
-                int &len_ = rsp_.content_length;
-                std::string &text_ = rsp_.text;
+                int &len_ = rsp_->content_length;
+                std::string &text_ = rsp_->rsp_text;
 
+                len_ = 0;
+                char c;
                 while(read(output[0], &c, 1) > 0){
                     text_.push_back(c);
                     len_++;
                 }
 
-                ProtocolUtil::BuildResponse(ct);
+                rsp_->resource_suffix = ".html";
 
-                std::string &header_ = rsp_.header;
-                std::string &header_body_ = rsp_.header_body;
-
-                send(sock_, header_.c_str(), header_.size(), 0);
-                send(sock_, header_body_.c_str(), header_body_.size(), 0);
-                send(sock_, text_.c_str(),text_.size(), 0);
-
+                rsp_->BuildResponseHeader();
+                conn_->SendResponseHeader(rsp_);
+                conn_->SendResponseText(rsp_, true);
 
                 waitpid(id, NULL, 0);
                 close(input[1]);
                 close(output[0]);
             }
         }
-        static void ProcessNonCgi(Context *&ct)
-        {
-            int &sock_ = ct->sock;
-
-            Request &rq_ = ct->http_request;
-            Response &rsp_ = ct->http_response;
-
-            int &size_ = rq_.file_size;
-            status_t &code_ = rsp_.code;
-
-            std::string &header_ = rsp_.header;
-            std::string &header_body_ = rsp_.header_body;
-            std::string &path_ = rq_.path;
-
-            int fd_ =  open(path_.c_str(), O_RDONLY);
-            if(fd_ < 0){
-                code_ = NOT_FOUND;
-                return;
-            }
-
-            ProtocolUtil::BuildResponse(ct);
-
-            send(sock_, header_.c_str(), header_.size(), 0);
-            send(sock_, header_body_.c_str(), header_body_.size(), 0);
-
-            sendfile(sock_, fd_, NULL, size_);
-            close(fd_);
-        }
-        static void HttpProcess(Context *&ct)
+        //处理http，读取所有请求
+        static void HttpProcess(Connect *&conn_, Request *&rq_, Response *&rsp_)
         {
             LOG(INFO, "request process begin!");
-            Request &rq_ = ct->http_request;
-            Response &rsp_ = ct->http_response;
-            bool &cgi_ = rq_.cgi;
-            status_t &code_ = rsp.code;
-            
-            ProtocolUtil::ReadAll(ct);
-            if(code_ != OK){
-                return;
-            }
-
-            if(cgi_){
+            if(rq_->cgi){
                 LOG(INFO, "request handler througt cgi");
-                ProcessCgi(ct);
+                ProcessCgi(conn_, rq_, rsp_);
             }else{
                 LOG(INFO, "request handler througt non_cgi");
-                ProcessNonCgi(ct);
+                ProcessNonCgi(conn_, rq_, rsp_);
             }
             LOG(INFO, "request process end!");
         }
-        static void HandlerRequest(int sock)
+
+        static void HandlerRequest(int sock_)
         {
-            Context *ct = new Context(sock);
-            Response &rsp = ct->http_response;
+            Connect *conn_ = new Connect(sock_);
+            Request *rq_   = new Request();
+            Response *rsp_ = new Response();
 
-            status_t &code_ = rsp.code;
+            conn_->ReadOneLine(rq_->rq_line);
+            rq_->RequestLineParse();
 
-            ProtocolUtil::GetLine(ct);
-            ProtocolUtil::RequestLineParse(ct);
-            if(!ProtocolUtil::CheckMethodVaild(ct)){
+            if(!rq_->IsMethodVaild()){
                 LOG(ERROR, "request method error!");
-                code_ = NOT_FOUND;
+                rsp_->code = NOT_FOUND;
                 goto end;
             }
-            ProtocolUtil::RequestUrlParse(ct);
-            if(!ProtocolUtil::CheckPathVaild(ct)){
+            rq_->RequestUrlParse();
+
+            if(!rq_->IsPathVaild()){
                 LOG(ERROR, "request path error!");
-                code_ = NOT_FOUND;
+                rsp_->code = NOT_FOUND;
                 goto end;
             }
-            HttpProcess(ct);
-        end:
-            if(code_ != OK){
-                EchoError(ct);
+
+            conn_->ReadHeader(rq_->rq_header);
+            rq_->HeaderParse();
+            if( strcasecmp((rq_->method).c_str(), "POST") == 0 && rq_->content_length > 0){
+                if( !conn_->ReadText(rq_->rq_text, rq_->content_length) ){
+                    rsp->code = NOT_FOUND;
+                    goto end;
+                }
             }
-            close(ct->sock);
-            delete ct;
+            HttpProcess(conn_, rq_, rsp_);
+        end:
+            if(rsp_->code != OK){
+                ProcessError(conn_, rq_, rsp_);
+            }
+            delete conn_;
+            delete rq_;
+            delete rsp_;
         }
 
 };
