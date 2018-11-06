@@ -19,7 +19,7 @@
 #include "Log.hpp"
 
 #define HTTP_ROOT "wwwroot"
-#define MAIN_PAGE "index.html"
+#define HOME_PAGE "index.html"
 
 typedef enum{
     OK=200,
@@ -104,9 +104,10 @@ class ProtocolUtil{
         static int GetLine(Context *&ct)
         {
             int &sock_ = ct->sock;
+            Resquest &rq_ = ct->http_request;
+            std::string &line_ = rq_.line;
+
             char c = 'x';
-            std::string &line_ = (ct->http_request).line;
-            line_ = "";
             while(c != '\n'){
                 ssize_t s = recv(sock_, &c, 1, 0);
                 if(s > 0){
@@ -128,17 +129,25 @@ class ProtocolUtil{
         }
         static void RequestLineParse(Context *&ct)
         {
-            std::string &method_ = (ct->http_request).method;
-            std::string &url_ = (ct->http_request).url;
-            std::string &http_version_ = (ct->http_request).http_version;
-            std::stringstream ss((ct->http_request).line);
+            Request &rq_ = ct->http_request;
+
+            std::string &method_ = rq_.method;
+            std::string &url_ = rq_.url;
+            std::string &http_version_ = rq_.http_version;
+            std::string &line_ = rq_.line;
+
+            std::stringstream ss(line_);
+
             ss >> method_ >> url_ >> http_version_;
         }
         static bool CheckMethodVaild(Context *&ct)
         {
-            bool &cgi_ = (ct->http_request).cgi;
-            std::string &method_ = (ct->http_request).method;
+            Request &rq_ = ct->http_request;
+            
+            std::string &method_ = rq_.method;
+            bool &cgi_ = rq_.cgi;
             cgi_ = false;
+
             if((cgi_ = (strcasecmp(method_.c_str(), "POST") == 0)) || strcasecmp(method_.c_str(), "GET") == 0){
                 return true;
             }
@@ -146,10 +155,12 @@ class ProtocolUtil{
         }
         static void RequestUrlParse(Context *&ct)
         {
-            std::string &path_ = (ct->http_request).path;
-            std::string &query_string_ = (ct->http_request).query_string;
-            std::string &url_ = (ct->http_request).url;
-            bool &cgi_ = (ct->http_request).cgi;
+            Request &rq_ = ct->http_request;
+
+            std::string &path_ = rq_.path;
+            std::string &query_string_ = rq_.query_string;
+            std::string &url_ = rq_.url;
+            bool &cgi_ = rq_.cgi;
         
             int pos = url_.find("?");
             if(std::string::npos != pos){
@@ -159,8 +170,8 @@ class ProtocolUtil{
             }
             path_ = HTTP_ROOT;
             path_ += url_;
-            if(path_[path_.size() - 1 ] == '/'){
-                path_ += MAIN_PAGE;
+            if(path_[path_.size() - 1] == '/'){
+                path_ += HOME_PAGE;
             }
         }
         static void HeaderBodyParse(Context *&ct, std::string &body)
@@ -188,20 +199,24 @@ class ProtocolUtil{
         }
         static bool CheckPathVaild(Context *&ct)
         {
-            std::string &path_ = (ct->http_request).path;
-            std::string &suffix_ = (ct->http_request).suffix;
-            int &size_ = (ct->http_request).file_size;
-            bool &cgi_ = (ct->http_request).cgi;
+            Request &rq_ = ct->http_request;
+            Response &rsp_ = ct->http_response;
+
+            std::string &path_ = rq_.path;
+            std::string &suffix_ = rq_.suffix;
+            int &size_ = rq_.file_size;
+            bool &cgi_ = rq_.cgi;
+            status_t &code_ = rsp_.code;
             struct stat st;
 
-            LOG(INFO, path_);
             if(stat(path_.c_str(), &st)){
+                code_ = NOT_FOUND;
                 return false;
             }
             else{
                 if(S_ISDIR(st.st_mode)){
                     path_ += "/";
-                    path_ += MAIN_PAGE;
+                    path_ += HOME_PAGE;
                 }else if((st.st_mode & S_IXUSR) ||\
                         (st.st_mode & S_IXGRP) ||\
                         (st.st_mode & S_IXOTH)){
@@ -233,31 +248,36 @@ class ProtocolUtil{
         }
         static void BuildResponse(Context *&ct)
         {
-            bool &cgi_ = (ct->http_request).cgi;
-            std::string &header_ = (ct->http_response).header;
-            std::string &header_body_ = (ct->http_response).header_body;
-            status_t &code_ = (ct->http_response).code;
+            Request &rq_ = ct->http_request;
+            Response &rsp_ = ct->http_response;
+
+            bool &cgi_ = rq_.cgi;
+            std::string &header_ = rsp_.header;
+            std::string &header_body_ = rsp_.header_body;
+            status_t &code_ = rsp_.code;
+
             std::stringstream ss;
             ss << code_;
+
             header_ = "HTTP/1.0 ";
             header_ += ss.str();
             //header_ += " OK\n"; //add code
             header_ += CodeToErrString(code_); //add code
             if(!cgi_){
-                std::string &path_ = (ct->http_request).path;
-                std::string &suffix_ = (ct->http_request).suffix;
-                int &size_ = (ct->http_request).file_size;
+
+                std::string &path_ = rq_.path;
+                std::string &suffix_ = rq_.suffix;
+                int &size_ = rq_.file_size;
 
                 header_body_ = "Content-Type: ";
                 header_body_ += g_text_type[suffix_];
                 //LOG(DEBUG, header_body_ + suffix_);
                 header_body_ += "Content-Length: ";
+                
                 ss.str("");
                 ss << size_<< "\n\n";
                 header_body_ += ss.str();
 
-                LOG(DEBUG, suffix_);
-                LOG(DEBUG, header_body_);
             }else{
                 int &len_ = (ct->http_response).content_length;
                 ss.str("");
@@ -271,26 +291,36 @@ class ProtocolUtil{
         {
             int &sock_ = ct->sock;
             Request &rq_ = ct->http_request;
+            Response &rsp_ = ct->http_response;
+
+            int len_ = rq_.content_length;
+            std::string &method_ = rq_.method;
+            std::string &query_string_ = rq_.query_string;
+            status_t code_ = rsp_.code;
+
             std::string &line_ = rq_.line;
-            std::string tmp_;
             line_ = "";
+            
+            std::string tmp_;
             while(line_ != "\n"){
                 GetLine(ct);
                 tmp_ += line_;
             }
             HeaderBodyParse(ct, tmp_);
-            int len_ = (ct->http_request).content_length;
-            std::string &method_ = (ct->http_request).method;
-            std::string &query_string_ = (ct->http_request).query_string;
-            char ch;
-            ssize_t s_;
-            while(strcasecmp(method_.c_str(), "POST") == 0 && len_ > 0){
-                s_ = recv(sock_, &ch, 1, 0);
-                if(s_ <= 0){
-                    break;
+            if( strcasecmp(method_.c_str(), "POST") == 0 ){
+                char ch;
+                ssize_t s_;
+                while( len_ > 0){
+                    s_ = recv(sock_, &ch, 1, 0);
+                    if(s_ <= 0){
+                        break;
+                    }
+                    len_--;
+                    query_string_.push_back(ch);
                 }
-                len_--;
-                query_string_.push_back(ch);
+                if(len_ != 0){
+                    code_ = NOT_FOUND;
+                }
             }
         }
 };
@@ -325,13 +355,18 @@ class Entry{
             pipe(output);
 
             int &sock_ = ct->sock;
-            status_t code_ = (ct->http_response).code;
-            std::string &arg = (ct->http_request).query_string;
-            std::stringstream ss;
-            ss << arg.size();
-            std::string size_str_ = ss.str();
 
-            LOG(DEBUG, arg);
+            Request &rq_ = ct->http_request;
+            Rsponse &rsp_ = ct->http_response;
+
+            status_t code_ = rsp_.code;
+            std::string &param = rq_.query_string;
+
+            std::stringstream ss;
+            ss << param.size();
+            std::string param_size_ = ss.str();
+
+            LOG(DEBUG, param);
 
             pid_t id = fork();
             if(id < 0){
@@ -349,7 +384,7 @@ class Entry{
                 dup2(output[1], 1);
 
                 std::string content_length_env_ = "Content_Length=";
-                content_length_env_ += size_str_;
+                content_length_env_ += param_size_;
                 putenv((char*)content_length_env_.c_str());
                 execl(path_.c_str(), path_.c_str(), NULL);
                 exit(1);
@@ -358,25 +393,27 @@ class Entry{
                 close(input[0]);
                 close(output[1]);
 
-                ssize_t s = 0;
-                int num = arg.size();
+                int num = param.size();
                 int total = 0;
-                const char *str = arg.c_str();
+                ssize_t s = 0;
+                const char *str = param.c_str();
                 while( total != num && (s = write(input[1], str + total, num - total)) > 0 ){
                     total += s;
                 }
 
                 char c;
-                int &len_ = (ct->http_response).content_length;
-                std::string &text_ = (ct->http_response).text;
+                int &len_ = rsp_.content_length;
+                std::string &text_ = rsp_.text;
+
                 while(read(output[0], &c, 1) > 0){
                     text_.push_back(c);
                     len_++;
                 }
+
                 ProtocolUtil::BuildResponse(ct);
 
-                std::string &header_ = (ct->http_response).header;
-                std::string &header_body_ = (ct->http_response).header_body;
+                std::string &header_ = rsp_.header;
+                std::string &header_body_ = rsp_.header_body;
 
                 send(sock_, header_.c_str(), header_.size(), 0);
                 send(sock_, header_body_.c_str(), header_body_.size(), 0);
@@ -391,12 +428,16 @@ class Entry{
         static void ProcessNonCgi(Context *&ct)
         {
             int &sock_ = ct->sock;
-            int &size_ = (ct->http_request).file_size;
-            status_t &code_ = (ct->http_response).code;
 
-            std::string &header_ = (ct->http_response).header;
-            std::string &header_body_ = (ct->http_response).header_body;
-            std::string &path_ = (ct->http_request).path;
+            Request &rq_ = ct->http_request;
+            Response &rsp_ = ct->http_response;
+
+            int &size_ = rq_.file_size;
+            status_t &code_ = rsp_.code;
+
+            std::string &header_ = rsp_.header;
+            std::string &header_body_ = rsp_.header_body;
+            std::string &path_ = rq_.path;
 
             int fd_ =  open(path_.c_str(), O_RDONLY);
             if(fd_ < 0){
@@ -415,8 +456,16 @@ class Entry{
         static void HttpProcess(Context *&ct)
         {
             LOG(INFO, "request process begin!");
-            bool &cgi_ = (ct->http_request).cgi;
+            Request &rq_ = ct->http_request;
+            Response &rsp_ = ct->http_response;
+            bool &cgi_ = rq_.cgi;
+            status_t &code_ = rsp.code;
+            
             ProtocolUtil::ReadAll(ct);
+            if(code_ != OK){
+                return;
+            }
+
             if(cgi_){
                 LOG(INFO, "request handler througt cgi");
                 ProcessCgi(ct);
@@ -424,11 +473,14 @@ class Entry{
                 LOG(INFO, "request handler througt non_cgi");
                 ProcessNonCgi(ct);
             }
+            LOG(INFO, "request process end!");
         }
         static void HandlerRequest(int sock)
         {
             Context *ct = new Context(sock);
-            status_t &code_ = (ct->http_response).code;
+            Response &rsp = ct->http_response;
+
+            status_t &code_ = rsp.code;
 
             ProtocolUtil::GetLine(ct);
             ProtocolUtil::RequestLineParse(ct);
