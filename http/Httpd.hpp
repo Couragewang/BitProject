@@ -18,7 +18,7 @@ class HttpServer{
         ThreadPool *tpool;
 
     public:
-        HttpServer(const std::string &ip_, const int &port_):LISTEN_NUM(5), THREAD_NUM(10)
+        HttpServer(const std::string &ip_, const int &port_):LISTEN_NUM(5), THREAD_NUM(5)
         {
             listen_sock = -1;
             ip = ip_;

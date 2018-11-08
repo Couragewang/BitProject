@@ -249,8 +249,9 @@ class Connect{
         //读取请求包头,包括空行
         void ReadHeader(std::string &header_)
         {
-            std::string line_ = "";
+            std::string line_;
             while(line_ != "\n"){
+                line_ = "";
                 ReadOneLine(line_);
                 header_ += line_;
             }
@@ -429,16 +430,17 @@ class Entry{
             if(!rq_->IsMethodVaild()){
                 LOG(ERROR, "request method error!");
                 rsp_->code = NOT_FOUND;
+                conn_->ReadHeader(rq_->rq_header);
                 goto end;
             }
             rq_->RequestUrlParse();
 
             if(!rq_->IsPathVaild()){
                 LOG(ERROR, "request path error!");
+                conn_->ReadHeader(rq_->rq_header);
                 rsp_->code = NOT_FOUND;
                 goto end;
             }
-
             conn_->ReadHeader(rq_->rq_header);
             rq_->HeaderParse();
             if( strcasecmp((rq_->method).c_str(), "POST") == 0 && rq_->content_length > 0){
