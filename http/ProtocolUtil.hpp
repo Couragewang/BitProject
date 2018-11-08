@@ -1,6 +1,5 @@
 #ifndef _HTTPD_HPP_H_
-#define _HTTPD_HPP_H_
-
+#define _HTTPD_HPP_H_ 
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -110,7 +109,7 @@ class Request{
             if(std::string::npos != pos){
                 rq_param = url.substr(pos+1);
                 url = url.substr(0, pos);
-                cgi_ = true;
+                cgi = true;
             }
             path = HTTP_ROOT;
             path += url;
@@ -166,6 +165,14 @@ class Request{
                 }
             }
         }
+        void Make404Request()
+        {
+            path = PAGE_404;
+            resource_suffix = ".html";
+            struct stat st;
+            stat(path.c_str(), &st);
+            resource_size = st.st_size;
+        }
         ~Request()
         {}
 };
@@ -205,21 +212,6 @@ class Response{
             
             rsp_header += blank_line;
         }
-        void Make404()
-        {
-            std::string &path_ = rq_.path;
-            std::string &suffix_ = rq_.suffix;
-            int file_size_ = rq_.file_size;
-            bool &cgi_ = rq_.cgi;
-
-            path_ = PAGE_404;
-            suffix_ = ".html";
-            cgi_ = false;
-
-            struct stat st;
-            stat(path_.c_str(), &st);
-            file_size_ = st.st_size;
-        }
         ~Response()
         {}
 };
@@ -228,7 +220,7 @@ class Connect{
     private:
         int sock;
     public:
-        connect(int sock_):sock(sock_)
+        Connect(int sock_):sock(sock_)
         {}
         //读取请求行或者任意请求行
         int ReadOneLine(std::string &line_)
@@ -284,10 +276,10 @@ class Connect{
         void SendResponseHeader(Response *&rsp_)
         {
             std::string &rsp_line_ = rsp_->rsp_line;
-            std::string &rsp_header_ = rsp->rsp_header;
+            std::string &rsp_header_ = rsp_->rsp_header;
 
             send(sock, rsp_line_.c_str(), rsp_line_.size(), 0);
-            send(sock, rsp_header_.c_str(), rsp_header.size(), 0);
+            send(sock, rsp_header_.c_str(), rsp_header_.size(), 0);
         }
         void SendResponseText(Response *&rsp_, bool is_cgi_)
         {
@@ -300,33 +292,16 @@ class Connect{
             }
         }
 
-        ~connect()
+        ~Connect()
         {
             close(sock);
         }
 };
 
-
-
 class Entry{
     public:
-        static void ProcessError(Connect *&conn_, Request *&rq_, Response &*rsp_);
-        {
-            switch(rsp_->code){
-                case 404:
-                    rsp_->Make404();
-                    break;
-                case 501:
-                    break;
-                case 503:
-                    break;
-                default:
-                    break;
-            }
-            ProcessNonCgi(ct);
-        }
         //处理非CGI请求
-        void ProcessNonCgi(Connect *&conn_, Request *&rq_, Response *&rsp_)
+        static void ProcessNonCgi(Connect *&conn_, Request *&rq_, Response *&rsp_)
         {
             std::string &path_ = rq_->path;
             int &fd_ = rsp_->fd;
@@ -343,6 +318,21 @@ class Entry{
             conn_->SendResponseHeader(rsp_);
             conn_->SendResponseText(rsp_, false);
             close(fd_);
+        }
+        static void ProcessError(Connect *&conn_, Request *&rq_, Response *&rsp_)
+        {
+            switch(rsp_->code){
+                case 404:
+                    rq_->Make404Request();
+                    break;
+                case 501:
+                    break;
+                case 503:
+                    break;
+                default:
+                    break;
+            }
+            ProcessNonCgi(conn_, rq_, rsp_);
         }
         static void ProcessCgi(Connect *&conn_, Request *&rq_, Response *&rsp_)
         {
@@ -361,7 +351,7 @@ class Entry{
 
             pid_t id = fork();
             if(id < 0){
-                rsp->code = NOT_FOUND;
+                rsp_->code = NOT_FOUND;
                 return;
             }else if(id == 0){ //child
                 //LOG(DEBUG, path_);
@@ -388,7 +378,7 @@ class Entry{
                 ssize_t s = 0;
                 const char *str = param.c_str();
 
-                while( total != param_size_ && (s = write(input[1], str + total, param_size_ - total)) > 0 ){
+                while( total < param_size_ && (s = write(input[1], str + total, param_size_ - total)) > 0 ){
                     total += s;
                 }
 
@@ -453,7 +443,7 @@ class Entry{
             rq_->HeaderParse();
             if( strcasecmp((rq_->method).c_str(), "POST") == 0 && rq_->content_length > 0){
                 if( !conn_->ReadText(rq_->rq_text, rq_->content_length) ){
-                    rsp->code = NOT_FOUND;
+                    rsp_->code = NOT_FOUND;
                     goto end;
                 }
             }
