@@ -1,8 +1,8 @@
 #ifndef _MINICHAT_SERVER_HPP_
 #define _MINICHAT_SERVER_HPP_
 
-#include "Log.hpp"
 #include "ProtocolUtil.hpp"
+#include "Log.hpp"
 
 #define EPOLL_NUM 128
 
@@ -29,7 +29,7 @@ class MiniChatServer{
 
             local.sin_family = AF_INET;
             local.sin_port = htons(port);
-            local.sin_addr.s_addr = inet_addr(INADDR_ANY);
+            local.sin_addr.s_addr = htonl(INADDR_ANY);
 
             if(bind(listen_sock, (struct sockaddr*)&local, sizeof(local)) < 0){
                 LOG(ERROR, "bind error");

@@ -1,6 +1,6 @@
 CC=g++
 LD_FLAGS=#-static
-FLAGS=#-g
+FLAGS=-std=c++11 -g
 
 .PHONY:all
 all:ChatClient MiniChatServer
