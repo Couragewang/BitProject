@@ -54,8 +54,15 @@ class MiniChatServer{
                 exit(6);
             }
         }
+
+        void Start()
+        {
+
+        }
+
         ~MiniChatServer()
         {
+            epoll_ctl(epfd, EPOLL_CTL_DEL, listen_sock, NULL);
             close(listen_sock);
             close(epfd);
         }
