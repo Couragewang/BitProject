@@ -47,6 +47,20 @@ typedef struct Message{
     char message[255];
 }message_t;
 
+class IO_Util{
+    public:
+        static int RecvMessage(int sock_, char msg_[]) //read 256
+        {
+            ssize_t s;
+            while((s = recv()))
+        }
+
+        static int SendMessage(char msg_[])
+        {
+
+        }
+};
+
 #endif
 
 
