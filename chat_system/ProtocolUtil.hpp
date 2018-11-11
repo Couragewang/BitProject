@@ -14,19 +14,6 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
-class Connect{
-    private:
-        int sock;
-    public:
-        Connect(int sock_):sock(sock_)
-        {}
-        int GetSock()
-        {
-            return sock;
-        }
-        ~Connect()
-        {}
-};
 
 #endif
 

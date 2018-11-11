@@ -2,9 +2,14 @@
 #define _MINICHAT_SERVER_HPP_
 
 #include "ProtocolUtil.hpp"
+#include "ConnectManage.hpp"
+#include "UserManage.hpp"
 #include "Log.hpp"
 
 #define EPOLL_NUM 128
+
+#define EV_READ_READY(ev) ((ev) & EPOLLIN)
+#define EV_WRITE_READY(ev) ((ev) & EPOLLOUT)
 
 class MiniChatServer{
     private:
@@ -12,9 +17,16 @@ class MiniChatServer{
         int port;
         int epfd;
     private:
-        static bool ReadEvReady(uint32_t ev_)
+        void AcceptNewConnect()
         {
-            return (ev_ & EPOLLIN);
+            struct sockaddr_in peer_;
+            socklen_t len_ = sizeof(peer_);
+            int sock_ = accept(listen_sock, &peer_, &len_);
+            if(sock_ < 0){
+                LOG(ERROR, "accept new connect error");
+                return;
+            }
+
         }
         void ProcessRequest(struct epoll_event revs_[], int rnums_)
         {
@@ -23,8 +35,9 @@ class MiniChatServer{
                 Connect *conn_ = (Connect *)(revs_[i].data.ptr);
                 int sock_ = conn_->GetSock();
                 uint32_t ev_ = revs_[i].events;
-                if(sock_ == listen_sock && ReadEvReady(ev_)){
-
+                if(sock_ == listen_sock && EV_READ_READY(ev_)){
+                    AcceptNewConnect();
+                    continue;
                 }
             }
         }
