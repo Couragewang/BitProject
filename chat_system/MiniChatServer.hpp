@@ -11,6 +11,23 @@ class MiniChatServer{
         int listen_sock;
         int port;
         int epfd;
+    private:
+        static bool ReadEvReady(uint32_t ev_)
+        {
+            return (ev_ & EPOLLIN);
+        }
+        void ProcessRequest(struct epoll_event revs_[], int rnums_)
+        {
+            int i_ = 0;
+            for(; i_ < rnums_; i_++){
+                Connect *conn_ = (Connect *)(revs_[i].data.ptr);
+                int sock_ = conn_->GetSock();
+                uint32_t ev_ = revs_[i].events;
+                if(sock_ == listen_sock && ReadEvReady(ev_)){
+
+                }
+            }
+        }
     public:
         MiniChatServer(const int &port_):listen_sock(-1),port(port_)
         {}
@@ -57,7 +74,23 @@ class MiniChatServer{
 
         void Start()
         {
-
+            struct epoll_event revs_[EPOLL_NUM];
+            int revs_num_ = EPOLL_NUM;
+            for( ; ; ){
+                int timeout_ = 1000;
+                int ready_num_ = 0;
+                switch((ready_num_ = epoll_wait(epfd, revs_, revs_num_, timeout_))){
+                    case 0: //timeout
+                        std::cout << "time out..." << std::endl;
+                        break;
+                    case -1:
+                        std::cout << "epoll error..." << std::endl;
+                        break;
+                    default:
+                        ProcessRequest(revs_, ready_num_);
+                        break;
+                }
+            }
         }
 
         ~MiniChatServer()

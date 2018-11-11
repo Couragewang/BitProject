@@ -20,8 +20,19 @@ class Connect{
     public:
         Connect(int sock_):sock(sock_)
         {}
+        int GetSock()
+        {
+            return sock;
+        }
         ~Connect()
         {}
 };
 
 #endif
+
+
+
+
+
+
+

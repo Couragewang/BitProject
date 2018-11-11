@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     }
     MiniChatServer *serverp_ = new MiniChatServer(atoi(argv[1]));
     serverp_->InitServer();
-
+    serverp_->Start();
     delete serverp_;
     return 0;
 }
