@@ -17,4 +17,8 @@ class Connect{
         {}
 };
 
+class ConnectManager{
+
+};
+
 #endif

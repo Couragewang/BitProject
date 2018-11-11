@@ -26,7 +26,12 @@ class MiniChatServer{
                 LOG(ERROR, "accept new connect error");
                 return;
             }
+            LOG(ERROR, "accept a new connect success!");
+            struct epoll_event ev_;
+            ev_.events = EPOLLIN;
+            ev_.data.ptr = new Connect(sock_);
 
+            epoll_ctl(epfd, EPOLL_CTL_ADD, sock_, &ev_);
         }
         void ProcessRequest(struct epoll_event revs_[], int rnums_)
         {
@@ -38,6 +43,15 @@ class MiniChatServer{
                 if(sock_ == listen_sock && EV_READ_READY(ev_)){
                     AcceptNewConnect();
                     continue;
+                }
+                else if(EV_READ_READY(ev_)){
+
+                }
+                else if(EV_WRITE_READY(ev_)){
+
+                }
+                else{
+                    //DO NOTHING
                 }
             }
         }
