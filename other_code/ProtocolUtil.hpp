@@ -52,7 +52,8 @@ class IO_Util{
         static int RecvMessage(int sock_, char msg_[]) //read 256
         {
             ssize_t s;
-            while((s = recv()))
+            ssize_t total = 0;
+            while((s = recv(sock_, mes_+)))
         }
 
         static int SendMessage(char msg_[])
