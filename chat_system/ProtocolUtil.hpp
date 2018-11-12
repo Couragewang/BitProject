@@ -1,3 +1,11 @@
+#ifndef __PROTOCOL_UTIL_HPP__
+#define __PROTOCOL_UTIL_HPP__
+
+#include <iostream>
+
+#define MESSAGE_SIZE 1024
+
+#endif
 #include "my_json.h"
 my_json::my_json()
 {
