@@ -10,6 +10,7 @@
 typedef enum{
     LOGIN = 1,
     REGISTER,
+    LOGOUT,
 }request_type_t;
 
 typede unsigned long id_t;

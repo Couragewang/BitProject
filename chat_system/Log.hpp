@@ -41,12 +41,3 @@ inline std::ostream& Log(log_level level_, const char* file, int line, std::stri
 #endif
 
 
-
-
-
-
-
-
-
-
-
