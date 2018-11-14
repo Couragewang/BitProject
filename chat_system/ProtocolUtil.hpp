@@ -2,9 +2,17 @@
 #define __PROTOCOL_UTIL_HPP__
 
 #include <iostream>
+#include <string>
 #include <json/json.h>
 
 #define MESSAGE_SIZE 1024
+
+typedef enum{
+    LOGIN = 1,
+    REGISTER,
+}request_type_t;
+
+typede unsigned long id_t;
 
 class Util{
     static void ValueToMessage(Json::Value &value_, std::string &message_)
@@ -24,13 +32,39 @@ class Util{
     }
 };
 
+class LoginConnect{
+    public:
+        int sock;
+        void *server;
+    public:
+        LoginConnect(int sock_, void *server_):sock(sock_), server(server_)
+        {
+        }
+        ~LoginConnect()
+        {}
+};
+
+struct RegisterInfo{
+    char nick_name[32];
+    char school[64];
+    id_t id;
+    char passwd[32];
+};
+struct LoginInfo{
+    id_t id;
+    char passwd[32];
+};
+struct Reply{
+    int status;
+    id_t id;
+};
+
 class Message{
 	private:
 		std::string nick_name;
 		std::string school;
 		std::string msg;
-		std::string type;
-		std::string cmd;
+        id_t id;
 	public:
 		udp_data();
 		~udp_data();
@@ -74,8 +108,6 @@ class Message{
         	cmd       = value_["cmd"].asString();
         }
 };
-
-
 
 #endif
 

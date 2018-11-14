@@ -1,34 +1,19 @@
-#include "server_main.h"
-#include "udp_server.h"
-#include "udp_log.h"
+#include "ChatServer.hpp"
 
-static udp_server serd;
-
-void *consumer_run(void *arg)
+void Usage(std::string proc_)
 {
-	for( ; ; ){
-		print_log("consumer run....");
-		serd.broadcast_msg();
-	}
+    std::cout << proc_ << " login_port message_port" << std::endl;
 }
-
-void *producter_run(void *arg)
+int main(int argc, char *argv[])
 {
-	for( ; ; ){
-		print_log("product run....");
-		serd.recv_msg();
-	}
-	return NULL;
-}
+    if(argc != 3){
+        Usage(argv[0]);
+        exit(1);
+    }
+    ChatServer *serp_ = new ChatServer(atoi(argv[1]), atoi(argv[2]));
 
-int main()
-{
-	daemon(0, 0);
-	serd.init();
-	pthread_t consumer, producter;
-	pthread_create(&consumer, NULL, consumer_run, NULL);
-	pthread_create(&producter, NULL, producter_run, NULL);
-	pthread_join(consumer, NULL);
-	pthread_join(producter, NULL);
+    serp_->InitServer();
+    serp_->Stert();
+    delete serp_;
 	return 0;
 }
