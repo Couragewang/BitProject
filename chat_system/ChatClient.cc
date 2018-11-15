@@ -13,13 +13,20 @@ static void Menu()
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "Please Select# ";
 }
+
+void RunClient(ChatClient *clip)
+{
+
+}
+
 int main(int argc, char argv[])
 {
     if(argc != 4){
         Usage(argv[0]);
         exit(1);
     }
-    ChatClient *clip = new ChatClient( argv[1], atoi(argv[2]), atoi(argv[3]) );
+    ChatClient *clip_ = new ChatClient( argv[1], atoi(argv[2]), atoi(argv[3]) );
+	clip_->InitClient();
 
     int select = -1;
     while(1){
@@ -27,7 +34,7 @@ int main(int argc, char argv[])
         cin >> select;
         if(select == 1){
             if(clip->Login()){
-                //todo
+                RunClient(clip);
             }
         }
         else if(select == 2){
@@ -43,7 +50,7 @@ int main(int argc, char argv[])
         }
     }
 
-    delete clip;
+    delete clip_;
     return 0;
 }
 

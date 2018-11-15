@@ -29,6 +29,13 @@ class Util{
     	Json::Reader reader_;
     	reader_.parse(message_, value_, false);
     }
+
+    //此处代码可以在优化，设置密码输入不回显功能
+    static void EnterPasswd(std::string tips_, std::string &passwd_)
+    {
+        std::cout << tips;
+        std::cin >> passwd_;
+    }
 };
 
 class LoginConnect{

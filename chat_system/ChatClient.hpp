@@ -69,11 +69,12 @@ class ChatClient{
             char type = LOGIN;
             send(login_sock, &type, 1, 0);
 
+            std::string passwd_;
             struct LoginInfo lg_;
             std::cout << "UserID:";
             std::cin >> lg_.id;
-            std::cout << "Password:";
-            std::cin >> lg_.passwd;
+            Util::EnterPasswd("Password:",passwd_);
+            strcpy(lg_.passwd, passwd_.c_str());
             send(login_sock, &lg_, sizeof(lg_), 0);
 
             bool ret;
@@ -87,12 +88,6 @@ class ChatClient{
 
             close(login_sock);
             return ret;
-        }
-        //此处代码可以在优化，设置密码输入不回显功能
-        void EnterPasswd(std::string &passwd_)
-        {
-            std::cout << "Please Enter Password Again: ";
-            std::cin >> passwd_;
         }
         bool Resister()
         {
@@ -109,8 +104,8 @@ class ChatClient{
             std::cout << "Please Enter Your School: ";
             std::cin >> reg_school;
             while(1){
-                EnterPasswd(reg_.passwd);
-                EnterPasswd(passwd_);
+                Util::EnterPasswd("Please Enter Password: ",reg_.passwd);
+                Util::EnterPasswd("Please Enter Password Again: ",passwd_);
                 if(reg_.passwd == passwd_){
                     break;
                 }else{
@@ -134,95 +129,34 @@ class ChatClient{
             close(login_sock);
             return ret;
         }
-		ssize_t send_msg(const std::string &_msg);
-		ssize_t recv_msg(std::string &_msg);
-		void add_friend(const std::string &_key);
-		void del_friend(const std::string &_key);
-		std::vector<std::string> &get_friends_list(){ return this->friends_list;}
+		ssize_t SendMessage(const std::string &message_)
+        {
+	        struct sockaddr_in server_;
+	        socklen_t len_ = sizeof(struct sockaddr_in);
+	        bzero(&server_, len_);
 
-		int set_ip(const std::string &_ip){this->dst_ip = _ip;}
-		int set_port(unsigned short int _port){this->dst_port = _port;}
-	private:
-		bool is_friend_exist(const std::string &_key);
+	        server_.sin_family = AF_INET;
+	        server_.sin_port   = htons(port);
+	        server_.sin_addr.s_addr = inet_addr(server_ip.c_str());
+	        ssize_t size_ = sendto(sock, message_.c_str(), message_.size(),\
+	        		0, (struct sockaddr*)&server_, len_);
+	        return size_;
+        }
+		ssize_t RecvMessage(std::string &message_)
+        {
+	        char buf_[MESSAGE_SIZE];
+	        memset(buf_, 0, sizeof(buf_));
+
+	        struct sockaddr_in dst_;
+	        socklen_t len_ = sizeof(dst_);
+	        bzero(&dst_, len_);
+
+	        ssize_t size_ = recvfrom(sock, buf_, sizeof(buf_), 0, (struct sockaddr*)&dst_, &len_);
+	        if(size_ > 0){
+	        	message_ = buf_;
+	        }
+	        return size_;
+        }
 };
-
-#endif
-int udp_client::init()
-{
-}
-
-ssize_t udp_client::send_msg(const std::string &_msg)
-{
-	struct sockaddr_in dst;
-	socklen_t len = sizeof(struct sockaddr_in);
-	bzero(&dst, len);
-
-	dst.sin_family = AF_INET;
-	dst.sin_port   = htons(this->dst_port);
-	dst.sin_addr.s_addr = inet_addr(this->dst_ip.c_str());
-	ssize_t _size = sendto(this->sock, _msg.c_str(), _msg.size(),\
-			0, (struct sockaddr*)&dst, len);
-
-	if( -1 == _size ){
-		print_log("sendto data error!");
-	}
-	return _size;
-}
-
-ssize_t udp_client::recv_msg(std::string &_msg)
-{
-	char buf[BUF_SIZE];
-	memset(buf, 0, sizeof(buf));
-
-	struct sockaddr_in dst;
-	socklen_t len = sizeof(dst);
-	bzero(&dst, len);
-
-	ssize_t _size = recvfrom(this->sock, buf, sizeof(buf), 0, \
-			(struct sockaddr*)&dst, &len);
-	if( -1 == _size ){
-		print_log("get msg failed!");
-	}else{
-		_msg = buf;
-	}
-	return _size;
-}
-
-bool udp_client::is_friend_exist(const std::string &_key)
-{
-	std::vector<std::string>::iterator _iter=friends_list.begin();
-	for( ; _iter != friends_list.end(); _iter++){
-		if( *_iter == _key ){
-			return true;
-		}
-	}
-	return false;
-}
-
-void udp_client::add_friend(const std::string &_key)
-{
-	if(is_friend_exist(_key)){
-		//Do Nothing
-	}else{
-		friends_list.push_back(_key);
-	}
-}
-
-void udp_client::del_friend(const std::string &_key)
-{
-	if(is_friend_exist(_key)){
-		std::vector<std::string>::iterator _iter = friends_list.begin();
-		for( ; _iter != friends_list.end(); ){
-			if( *_iter == _key ){
-				_iter = friends_list.erase(_iter);
-				return;
-			}else{
-				_iter++;
-			}
-		}
-	}else{
-		//Do Nothing
-	}
-}
 
 #endif
