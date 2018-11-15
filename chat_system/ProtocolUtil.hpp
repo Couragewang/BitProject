@@ -7,11 +7,9 @@
 
 #define MESSAGE_SIZE 1024
 
-typedef enum{
-    LOGIN = 1,
-    REGISTER,
-    LOGOUT,
-}request_type_t;
+#define LOGIN    1
+#define REGISTER 2
+#define LOGOUT   3
 
 typede unsigned long id_t;
 
@@ -48,7 +46,6 @@ class LoginConnect{
 struct RegisterInfo{
     char nick_name[32];
     char school[64];
-    id_t id;
     char passwd[32];
 };
 struct LoginInfo{
@@ -67,25 +64,22 @@ class Message{
 		std::string msg;
         id_t id;
 	public:
-		udp_data();
-		~udp_data();
+		Message();
+		~Message();
 
-		const std::string& get_nick_name(){return this->nick_name;}
-    	const std::string& get_school(){return this->school;}
-    	const std::string& get_msg(){return this->msg;}
-    	const std::string& get_type(){return this->type;}
-    	const std::string& get_cmd(){return this->cmd;}
+		const std::string& GetNickName(){return this->nick_name;}
+    	const std::string& GetSchool(){return this->school;}
+    	const std::string& GetMsg(){return this->msg;}
+    	const id_t& GetId(){return this->id;}
 
-		void set_nick_name(const std::string &_nick_name)
-		{this->nick_name = _nick_name;}
-		void set_school(const std::string &_school)
-		{this->school = _school;}
-		void set_msg(const std::string &_msg)
-		{this->msg = _msg;}
-		void set_type(const std::string &_type)
-		{this->type = _type;}
-		void set_cmd(const std::string &_cmd)
-		{this->cmd = _cmd;}
+		void SetNickName(const std::string &n_)
+		{this->nick_name = n_;}
+		void SetSchool(const std::string &s_)
+		{this->school = s_;}
+		void SetMsg(const std::string &m_)
+		{this->msg = m_;}
+        void SetId(const id_t &i_)
+        {this->id = i_;}
 
         void Serialize(std::string &message_)
         {
@@ -93,8 +87,7 @@ class Message{
         	value_["nick_name"] = nick_name;
         	value_["school"]    = school;
         	value_["msg"]       = msg;
-        	value_["type"]      = type;
-        	value_["cmd"]       = cmd;
+            value_["id"]        = id;
             Util::ValueToMessage(value_, message_);
         }
         void Deserialize(std::string &message_)
@@ -105,8 +98,7 @@ class Message{
         	nick_name = value_["nick_name"].asString();
         	school    = value_["school"].asString();
         	msg       = value_["msg"].asString();
-        	type      = value_["type"].asString();
-        	cmd       = value_["cmd"].asString();
+        	id       = value_["id"].asInt();
         }
 };
 
