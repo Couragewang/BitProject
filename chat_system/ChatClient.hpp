@@ -88,6 +88,12 @@ class ChatClient{
             close(login_sock);
             return ret;
         }
+        //此处代码可以在优化，设置密码输入不回显功能
+        void EnterPasswd(std::string &passwd_)
+        {
+            std::cout << "Please Enter Password Again: ";
+            std::cin >> passwd_;
+        }
         bool Resister()
         {
             if( !ConnectServer() ){
@@ -103,10 +109,8 @@ class ChatClient{
             std::cout << "Please Enter Your School: ";
             std::cin >> reg_school;
             while(1){
-                std::cout << "Please Enter Password: ";
-                std::cin >> reg_.passwd;
-                std::cout << "Please Enter Password Again: ";
-                std::cin >> passwd_;
+                EnterPasswd(reg_.passwd);
+                EnterPasswd(passwd_);
                 if(reg_.passwd == passwd_){
                     break;
                 }else{
