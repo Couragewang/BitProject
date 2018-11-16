@@ -18,7 +18,7 @@ class MessagePool{
 		int p_step;
 		int c_step;
 	public:
-        data_pool(int size_ = MESSAGE_POOL_SIZE):pool_size(size_),pool(size_)
+        MessagePool(int size_ = MESSAGE_POOL_SIZE):pool_size(size_),pool(size_)
         {
         	p_step = c_step = 0;
         	sem_init(&product_sem, 0, size_);
@@ -41,7 +41,7 @@ class MessagePool{
             p_step++;
         	p_step %= pool_size;
         }
-        ~data_pool()
+        ~MessagePool()
         {
         	sem_destroy(&product_sem);
         	sem_destroy(&consume_sem);

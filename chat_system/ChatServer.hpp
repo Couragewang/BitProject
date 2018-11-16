@@ -3,10 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <strings.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 #include "ProtocolUtil.hpp"
 #include "MessagePool.hpp"
 #include "UserManager.hpp"
@@ -28,7 +31,7 @@ class ChatServer{
         {
 	        sock = socket(AF_INET, SOCK_DGRAM, 0);
 	        if(this->sock < 0){
-	        	Log(ERROR, "create sock error!");
+	        	LOG(ERROR, "create sock error!");
 	        	exit(2);
 	        }
 	        LOG(INFO, "create sock success!");
@@ -42,15 +45,15 @@ class ChatServer{
 	        socklen_t len_ = sizeof(struct sockaddr_in);
 
 	        if( -1 == bind(sock, (struct sockaddr*)&local_, len_)){
-	        	Log(ERROR, "bind sock error!");
+	        	LOG(ERROR, "bind sock error!");
                 exit(3);
 	        }
-	        Log(INFO, "bind sock success!");
-	        Log(INFO, "initialize server success!");
+	        LOG(INFO, "bind sock success!");
+	        LOG(INFO, "initialize server success!");
 
             login_sock = socket(AF_INET, SOCK_STREAM, 0);
             if(login_sock < 0){
-	        	Log(ERROR, "create login sock error!");
+	        	LOG(ERROR, "create login sock error!");
                 exit(4);
             }
             int opt = 1;
@@ -58,11 +61,11 @@ class ChatServer{
 
             local_.sin_port = htons(login_port);
             if(-1 == bind(login_sock, (struct sockaddr*)&local_, len_)){
-	        	Log(ERROR, "bind login sock error!");
+	        	LOG(ERROR, "bind login sock error!");
                 exit(5);
             }
             if(-1 == listen(login_sock, 5)){
-	        	Log(ERROR, "bind login sock error!");
+	        	LOG(ERROR, "bind login sock error!");
                 exit(6);
             }
         }
@@ -76,14 +79,14 @@ class ChatServer{
 
 	        struct sockaddr_in client_;
 	        socklen_t len_ = sizeof(client_);
-	        bzero(&cli_, len_);
+	        bzero(&client_, len_);
 
 	        ssize_t size_ = recvfrom(sock,msg_, sizeof(msg_), 0, (struct sockaddr *)&client_, &len_);
 	        if( -1 == size_){
-	        	Log(ERROR, "recv data from client failed!");
+	        	LOG(ERROR, "recv data from client failed!");
 	        }
             else{
-	        	Log(INFO, "recv data from client success!");
+	        	LOG(INFO, "recv data from client success!");
 	        	message_ = msg_;
                 pool.PutMessage(message_);
 	        }
@@ -92,9 +95,9 @@ class ChatServer{
         {
 	        ssize_t size_ = sendto(sock, message_.c_str(), message_.size(), 0, (struct sockaddr*)&client_, len_);
 	        if( size_ < 0 ){
-	        	Log(ERROR, "send data to client failed!");
+	        	LOG(ERROR, "send data to client failed!");
 	        }else{
-	        	Log(INFO, "send data to client success!");
+	        	LOG(INFO, "send data to client success!");
 	        }
         }
         int BroadcastMessage()
@@ -127,7 +130,7 @@ class ChatServer{
         static int HandlerLogin(int sock_, ChatServer *serp_)
         {
             UserManager &um_ = serp_->GetUserManager();
-            struct LiginInfo lg_;
+            struct LoginInfo lg_;
             recv(sock_, &lg_, sizeof(lg_), 0);
             return um_.Login(lg_.id, lg_.passwd);
         }
@@ -142,7 +145,7 @@ class ChatServer{
         static void *HandlerNewClient(void *arg)
         {
             pthread_detach(pthread_self());
-            LoginConnect *conn_ = (LoginConnect)arg;
+            LoginConnect *conn_ = (LoginConnect*)arg;
             int sock_ = conn_->sock;
             ChatServer *serp_ = (ChatServer*)conn_->server;
             id_t id_ = -1;
@@ -182,13 +185,13 @@ end:
                 struct sockaddr_in peer;
                 socklen_t len = sizeof(peer);
                 int new_sock_ = accept(login_sock, (struct sockaddr*)&peer, &len);
-                if(new_sock < 0){
+                if(new_sock_ < 0){
                     LOG(ERROR, "accept new sock error!");
                     continue;
                 }
-                pthread_id tid;
+                pthread_t tid_;
                 LoginConnect *conn_ = new LoginConnect(new_sock_, this);
-                pthread_create(&tid, NULL, HandlerNewClient, (void *)conn_);
+                pthread_create(&tid_, NULL, HandlerNewClient, (void *)conn_);
             }
         }
         ~ChatServer()

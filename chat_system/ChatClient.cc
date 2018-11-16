@@ -16,10 +16,10 @@ static void Menu()
 
 void RunClient(ChatClient *clip)
 {
-
+    std::cout << "Login success" << std::endl;
 }
 
-int main(int argc, char argv[])
+int main(int argc, char *argv[])
 {
     if(argc != 4){
         Usage(argv[0]);
@@ -31,14 +31,14 @@ int main(int argc, char argv[])
     int select = -1;
     while(1){
         Menu();
-        cin >> select;
+        std::cin >> select;
         if(select == 1){
-            if(clip->Login()){
-                RunClient(clip);
+            if(clip_->Login()){
+                RunClient(clip_);
             }
         }
         else if(select == 2){
-            if(clip->Register()){
+            if(clip_->Register()){
                 std::cout << "Register Success! Please Login!" << std::endl;
             }
             else{

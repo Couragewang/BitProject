@@ -2,6 +2,7 @@
 #define _LOG_HPP_
 
 #include <iostream>
+#include <cstdio>
 #include <string>
 #include <sys/time.h>
 

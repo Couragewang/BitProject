@@ -7,6 +7,8 @@
 #include <vector>
 #include <strstream>
 #include <string>
+#include <unistd.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -38,12 +40,12 @@ class ChatClient{
         {
 	        sock = socket(AF_INET, SOCK_DGRAM, 0);
 	        if( -1 == sock ){
-	        	Log(ERROR, "create sock failed!");
+	        	LOG(ERROR, "create sock failed!");
                 exit(2);
 	        }
             login_sock = socket(AF_INET, SOCK_STREAM, 0);
             if( -1 == login_sock ){
-                Log(ERROR, "create login sock failed!");
+                LOG(ERROR, "create login sock failed!");
                 exit(3);
             }
         }
@@ -56,7 +58,7 @@ class ChatClient{
             peer_.sin_addr.s_addr = inet_addr(server_ip.c_str());
 
             if(connect(login_sock, (struct sockaddr*)&peer_, sizeof(peer_)) < 0){
-                Log(ERROR, "connect error!");
+                LOG(ERROR, "connect error!");
                 return false;
             }
             return true;
@@ -89,7 +91,7 @@ class ChatClient{
             close(login_sock);
             return ret;
         }
-        bool Resister()
+        bool Register()
         {
             if( !ConnectServer() ){
                 return false;
@@ -98,15 +100,16 @@ class ChatClient{
             send(login_sock, &type_, sizeof(type_), 0);
 
             struct RegisterInfo reg_;
-            std::string passwd_;
+            std::string passwd_one_, passwd_two_;
             std::cout << "Please Enter Your Nick Name: ";
             std::cin >> reg_.nick_name;
             std::cout << "Please Enter Your School: ";
-            std::cin >> reg_school;
+            std::cin >> reg_.school;
             while(1){
-                Util::EnterPasswd("Please Enter Password: ",reg_.passwd);
-                Util::EnterPasswd("Please Enter Password Again: ",passwd_);
-                if(reg_.passwd == passwd_){
+                Util::EnterPasswd("Please Enter Password: ",passwd_one_);
+                Util::EnterPasswd("Please Enter Password Again: ",passwd_two_);
+                if(passwd_one_ == passwd_two_){
+                    strcpy(reg_.passwd, passwd_one_.c_str());
                     break;
                 }else{
                     std::cout << "Password Inconsistent! Try Again!" << std::endl;
@@ -116,7 +119,7 @@ class ChatClient{
             send(login_sock, &reg_, sizeof(reg_), 0);
 
             bool ret;
-            struct Reply rp_ = {-1, -1};
+            struct Reply rp_ = {-1, 0};
             recv(login_sock, &rp_, sizeof(rp_), 0);
             if(rp_.status == 0){
                 std::cout << "Your Login Id Is : " << rp_.id << " Please Remember!" << std::endl;

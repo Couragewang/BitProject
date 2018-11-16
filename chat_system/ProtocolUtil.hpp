@@ -11,31 +11,32 @@
 #define REGISTER 2
 #define LOGOUT   3
 
-typede unsigned long id_t;
+typedef unsigned int id_type;
 
 class Util{
-    static void ValueToMessage(Json::Value &value_, std::string &message_)
-    {
-    #ifdef _MY_JSON_STYLE_
-    	Json::StyledWriter write_;
-    #else
-    	Json::FastWriter write_;
-    #endif
-    	message_ = write_.write(value_);
-    }
-    
-    static void MessageToValue(std::string &message_, Json::Value &value_)
-    {
-    	Json::Reader reader_;
-    	reader_.parse(message_, value_, false);
-    }
+    public:
+        static void ValueToMessage(Json::Value &value_, std::string &message_)
+        {
+        #ifdef _MY_JSON_STYLE_
+        	Json::StyledWriter write_;
+        #else
+        	Json::FastWriter write_;
+        #endif
+        	message_ = write_.write(value_);
+        }
+        
+        static void MessageToValue(std::string &message_, Json::Value &value_)
+        {
+        	Json::Reader reader_;
+        	reader_.parse(message_, value_, false);
+        }
 
-    //此处代码可以在优化，设置密码输入不回显功能
-    static void EnterPasswd(std::string tips_, std::string &passwd_)
-    {
-        std::cout << tips;
-        std::cin >> passwd_;
-    }
+        //此处代码可以在优化，设置密码输入不回显功能
+        static void EnterPasswd(std::string tips_, std::string &passwd_)
+        {
+            std::cout << tips_;
+            std::cin >> passwd_;
+        }
 };
 
 class LoginConnect{
@@ -56,12 +57,12 @@ struct RegisterInfo{
     char passwd[32];
 };
 struct LoginInfo{
-    id_t id;
+    id_type id;
     char passwd[32];
 };
 struct Reply{
     int status;
-    id_t id;
+    id_type id;
 };
 
 class Message{
@@ -69,7 +70,7 @@ class Message{
 		std::string nick_name;
 		std::string school;
 		std::string msg;
-        id_t id;
+        id_type id;
 	public:
 		Message();
 		~Message();
@@ -77,7 +78,7 @@ class Message{
 		const std::string& GetNickName(){return this->nick_name;}
     	const std::string& GetSchool(){return this->school;}
     	const std::string& GetMsg(){return this->msg;}
-    	const id_t& GetId(){return this->id;}
+    	const id_type& GetId(){return this->id;}
 
 		void SetNickName(const std::string &n_)
 		{this->nick_name = n_;}
@@ -85,7 +86,7 @@ class Message{
 		{this->school = s_;}
 		void SetMsg(const std::string &m_)
 		{this->msg = m_;}
-        void SetId(const id_t &i_)
+        void SetId(const id_type &i_)
         {this->id = i_;}
 
         void Serialize(std::string &message_)

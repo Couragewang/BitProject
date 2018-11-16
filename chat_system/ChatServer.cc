@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     ChatServer *serp_ = new ChatServer(atoi(argv[1]), atoi(argv[2]));
 
     serp_->InitServer();
-    serp_->Stert();
+    serp_->Start();
     delete serp_;
 	return 0;
 }
