@@ -140,6 +140,7 @@ class ChatServer{
             struct RegisterInfo rg_;
             recv(sock_, &rg_, sizeof(rg_), 0);
             id_ = um_.Register(rg_.nick_name, rg_.school, rg_.passwd);
+            LOG(INFO, "new client register success!");
             return 0;
         }
         static void *HandlerNewClient(void *arg)

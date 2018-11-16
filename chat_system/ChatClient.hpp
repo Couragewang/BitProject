@@ -24,8 +24,8 @@ class ChatClient{
 		std::string server_ip;
 
 	public:
-		ChatClient(std::string server_ip_="127.0.0.1", int port_= 8080, int login_port_ = 8081)
-            :server_ip(server_ip_), port(port_), login_port(login_port_), sock(-1), login_sock(-1)
+		ChatClient(std::string server_ip_="127.0.0.1")
+            :server_ip(server_ip_), port(8081), login_port(8080), sock(-1), login_sock(-1)
         {}
 		~ChatClient()
         {
@@ -53,6 +53,7 @@ class ChatClient{
         {
             struct sockaddr_in peer_;
             bzero(&peer_, sizeof(peer_));
+
             peer_.sin_family = AF_INET;
             peer_.sin_port = htons(login_port);
             peer_.sin_addr.s_addr = inet_addr(server_ip.c_str());

@@ -2,7 +2,7 @@
 
 static void Usage(std::string proc_)
 {
-    std::cout << proc_ << " server_ip port login_port" << std::endl;
+    std::cout << proc_ << " server_ip" << std::endl;
 }
 
 static void Menu()
@@ -21,11 +21,11 @@ void RunClient(ChatClient *clip)
 
 int main(int argc, char *argv[])
 {
-    if(argc != 4){
+    if(argc != 2){
         Usage(argv[0]);
         exit(1);
     }
-    ChatClient *clip_ = new ChatClient( argv[1], atoi(argv[2]), atoi(argv[3]) );
+    ChatClient *clip_ = new ChatClient( argv[1] );
 	clip_->InitClient();
 
     int select = -1;
