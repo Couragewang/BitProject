@@ -1,140 +1,96 @@
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef __CHAT_WINDOW_HPP__
+#define __CHAT_WINDOW_HPP__
 
 #include <iostream>
 #include <string>
 #include <ncurses.h>
 #include <string.h>
 
-class chat_window{
+class ChatWindow{
 	private:
 		WINDOW *header;
 		WINDOW *output;
 		WINDOW *list;
 		WINDOW *input;
 	public:
-		chat_window(){
+		ChatWindow(){
 	        header = NULL;
 	        output = NULL;
 	        list   = NULL;
 	        input  = NULL;
+            initscr();
+            curs_set(0);
         }
-		~chat_window();
-		void init();
-		void draw_header();
-		void draw_output();
-		void draw_list();
-		void draw_input();
-		static void win_refresh(WINDOW* _win);
-		static void put_str_to_win(WINDOW *_win, int _y, int _x, const std::string &_str);
-		static void get_str_to_win(WINDOW *_win, std::string &_msg);
-		static void clear_win_line(WINDOW *_win, int begin, int num);
-
-
-		WINDOW *get_header(){ return this->header;}
-		WINDOW *get_output(){ return this->output;}
-		WINDOW *get_list(){return this->list;}
-		WINDOW *get_input(){return this->input;}
-
-	private:
-		WINDOW *create_win(int hei, int wth, int y, int x);
+		~ChatWindow()
+        {
+	        delwin(header);
+	        delwin(output);
+	        delwin(list);
+	        delwin(input);
+            endwin();
+        }
+		WINDOW *GetHeader(){ return header;}
+		WINDOW *GetOutput(){ return output;}
+		WINDOW *GetList(){return list;}
+		WINDOW *GetInput(){return input;}
+		void DrawHeader()
+        {
+	        int h_ = LINES/5;
+	        int w_ = COLS;
+	        int y_  = 0;
+	        int x_  = 0;
+	        header = newwin(h_, w_, y_, x_);
+	        box(header, 0, 0);//绘制边框
+	        wrefresh(header); //刷新窗口
+        }
+		void draw_list()
+        {
+	        int h_ = LINES*3/5;
+	        int w_ = COLS/4;
+	        int y_ = LINES/5;
+	        int x_ = COLS*3/4;
+	        list = newwin(h_, w_, y_, x_);
+	        box(list, 0, 0);//绘制边框
+	        wrefresh(list); //刷新窗口
+        }
+		void DrawOutput()
+        {
+	        int h_ = (LINES*3)/5;
+	        int w_ = (COLS*3)/4;
+	        int y_ = LINES/5;
+	        int x_ = 0;
+	        output = newwin(h_, w_, y_, x_);
+	        box(output, 0, 0);//绘制边框
+	        wrefresh(output); //刷新窗口
+        }
+		void DrawInput()
+        {
+	        int h_ = LINES/5;
+	        int w_ = COLS;
+	        int y_ = 4*LINES/5;
+	        int x_ = 0;
+	        input = newwin(h_, w_, y_, x_);
+	        box(input, 0, 0);//绘制边框
+	        wrefresh(input); //刷新窗口
+        }
+		void PutStringToWin(WINDOW *win_, int y_, int x_, const std::string &string_)
+        {
+	        mvwaddstr(win_, y_, x_, string_.c_str());
+        }
+		void GetStringToWin(WINDOW *win_, std::string &string_)
+        {
+        	char buffer_[BUF_SIZE];
+        	memset(buffer_, '\0', sizeof(buffer_));
+        	wgetnstr(win_, buffer_, sizeof(buffer_));
+        	string_ = buffer_;
+        }
+		void ClearWinLine(WINDOW *win_, int begin_, int num_)
+        {
+	        while( num_-- > 0 ){
+	        	wmove(win_, begin_++, 0);
+	        	wclrtoeol(win_);//clrtoeol是从光标位置清除到光标所在行的结尾
+	        }
+        }
 };
 
-
 #endif
-chat_window::chat_window()
-{
-//	WINDOW* win=newwin(50, 40, 1, 1);
-//	box(win, '+', '-');
-//	wrefresh(win);
-}
-
-void chat_window::init()
-{
-	initscr();
-}
-
-WINDOW *chat_window::create_win(int hei, int wth, int y, int x)
-{
-	WINDOW *_win = newwin(hei, wth, y, x);
-	return _win;
-}
-
-void chat_window::put_str_to_win(WINDOW *_win, int _y, int _x, const std::string &_str)
-{
-	mvwaddstr(_win, _y, _x, _str.c_str());
-}
-
-void chat_window::get_str_to_win(WINDOW *_win, std::string &_msg)
-{
-	char buf[BUF_SIZE];
-	memset(buf, '\0', sizeof(buf));
-	wgetnstr(_win, buf, sizeof(buf));
-	_msg = buf;
-}
-
-void chat_window::draw_header()
-{
-	//COLS/LINES
-	int hei = LINES/5;
-	int wth = COLS;
-	int y   = 0;
-	int x   = 0;
-	this->header = create_win(hei, wth, y, x);
-}
-
-void chat_window::win_refresh(WINDOW* _win)
-{
-	box(_win, 0, 0);//绘制边框
-	wrefresh(_win); //刷新窗口
-}
-
-void chat_window::clear_win_line(WINDOW *_win, int begin, int num)
-{
-	while( num-- > 0 ){
-		wmove(_win, begin++, 0);
-		wclrtoeol(_win);//clrtoeol是从光标位置清除到光标所在行的结尾
-	}
-}
-
-void chat_window::draw_output()
-{
-	//COLS/LINES
-	int hei = (LINES*3)/5;
-	int wth = (COLS*3)/4;
-
-	int y   = LINES/5;
-	int x   = 0;
-	this->output = create_win(hei, wth, y, x);
-}
-
-void chat_window::draw_list()
-{
-	//COLS/LINES
-	int hei = LINES*3/5;
-	int wth = COLS/4;
-
-	int y   = LINES/5;
-	int x   = COLS*3/4;
-	this->list = create_win(hei, wth, y, x);
-}
-
-void chat_window::draw_input()
-{
-	//COLS/LINES
-	int hei = LINES/5;
-	int wth = COLS;
-	int y   = 4*LINES/5;
-	int x   = 0;
-	this->input = create_win(hei, wth, y, x);
-}
-
-chat_window::~chat_window()
-{
-	delwin(this->header);
-	delwin(this->output);
-	delwin(this->list);
-	delwin(this->input);
-	endwin();
-}
-

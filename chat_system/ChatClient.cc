@@ -1,4 +1,5 @@
 #include "ChatClient.hpp"
+#include "ChatWindow.hpp"
 
 static void Usage(std::string proc_)
 {
