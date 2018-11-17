@@ -7,8 +7,18 @@
 #include <string.h>
 
 class chat_window{
+	private:
+		WINDOW *header;
+		WINDOW *output;
+		WINDOW *list;
+		WINDOW *input;
 	public:
-		chat_window();
+		chat_window(){
+	        header = NULL;
+	        output = NULL;
+	        list   = NULL;
+	        input  = NULL;
+        }
 		~chat_window();
 		void init();
 		void draw_header();
@@ -28,24 +38,12 @@ class chat_window{
 
 	private:
 		WINDOW *create_win(int hei, int wth, int y, int x);
-
-	private:
-		WINDOW *header;
-		WINDOW *output;
-		WINDOW *list;
-		WINDOW *input;
 };
 
 
 #endif
-#include "window.h"
-#include "udp_data.h"
 chat_window::chat_window()
 {
-	header = NULL;
-	output = NULL;
-	list   = NULL;
-	input  = NULL;
 //	WINDOW* win=newwin(50, 40, 1, 1);
 //	box(win, '+', '-');
 //	wrefresh(win);

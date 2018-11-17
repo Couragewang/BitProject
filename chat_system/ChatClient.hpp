@@ -43,14 +43,14 @@ class ChatClient{
 	        	LOG(ERROR, "create sock failed!");
                 exit(2);
 	        }
+        }
+        bool ConnectServer()
+        {
             login_sock = socket(AF_INET, SOCK_STREAM, 0);
             if( -1 == login_sock ){
                 LOG(ERROR, "create login sock failed!");
                 exit(3);
             }
-        }
-        bool ConnectServer()
-        {
             struct sockaddr_in peer_;
             bzero(&peer_, sizeof(peer_));
 
@@ -59,7 +59,8 @@ class ChatClient{
             peer_.sin_addr.s_addr = inet_addr(server_ip.c_str());
 
             if(connect(login_sock, (struct sockaddr*)&peer_, sizeof(peer_)) < 0){
-                LOG(ERROR, "connect error!");
+                std::string conn_error_ = strerror(errno);
+                LOG(ERROR, conn_error_);
                 return false;
             }
             return true;
@@ -123,7 +124,7 @@ class ChatClient{
             struct Reply rp_ = {-1, 0};
             recv(login_sock, &rp_, sizeof(rp_), 0);
             if(rp_.status == 0){
-                std::cout << "Your Login Id Is : " << rp_.id << " Please Remember!" << std::endl;
+                std::cout << "Your Login Id Is : \"" << rp_.id << "\" Please Remember!" << std::endl;
                 ret = true;
             }else{
                 std::cout << "Register Error!" << std::endl;

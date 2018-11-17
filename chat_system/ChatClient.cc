@@ -16,7 +16,8 @@ static void Menu()
 
 void RunClient(ChatClient *clip)
 {
-    std::cout << "Login success" << std::endl;
+    //std::cout << "Login success" << std::endl;
+
 }
 
 int main(int argc, char *argv[])
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
         if(select == 1){
             if(clip_->Login()){
                 RunClient(clip_);
+            }
+            else{
+                std::cout << "Login Failed, Please Check Your ID or Passwd" <<std::endl;
             }
         }
         else if(select == 2){
