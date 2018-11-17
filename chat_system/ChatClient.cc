@@ -17,8 +17,14 @@ static void Menu()
 
 void RunClient(ChatClient *clip)
 {
-    //std::cout << "Login success" << std::endl;
+    ChatWindow *winp = new ChatWindow();
 
+	winp->DrawHeader();
+    winp->DrawList();
+    winp->DrawOutput();
+    winp->DrawInput();
+    sleep(10);
+    delete winp;
 }
 
 int main(int argc, char *argv[])
@@ -36,10 +42,11 @@ int main(int argc, char *argv[])
         std::cin >> select;
         if(select == 1){
             if(clip_->Login()){
+                std::cout << "Login success!" << std::endl;
                 RunClient(clip_);
             }
             else{
-                std::cout << "Login Failed, Please Check Your ID or Passwd" <<std::endl;
+                std::cout << "Login Failed, Please Check Your ID or Passwd!" <<std::endl;
             }
         }
         else if(select == 2){

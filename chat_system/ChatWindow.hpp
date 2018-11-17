@@ -5,6 +5,7 @@
 #include <string>
 #include <ncurses.h>
 #include <string.h>
+#include "ProtocolUtil.hpp"
 
 class ChatWindow{
 	private:
@@ -43,7 +44,7 @@ class ChatWindow{
 	        box(header, 0, 0);//绘制边框
 	        wrefresh(header); //刷新窗口
         }
-		void draw_list()
+		void DrawList()
         {
 	        int h_ = LINES*3/5;
 	        int w_ = COLS/4;
@@ -79,7 +80,7 @@ class ChatWindow{
         }
 		void GetStringToWin(WINDOW *win_, std::string &string_)
         {
-        	char buffer_[BUF_SIZE];
+        	char buffer_[MESSAGE_SIZE];
         	memset(buffer_, '\0', sizeof(buffer_));
         	wgetnstr(win_, buffer_, sizeof(buffer_));
         	string_ = buffer_;
