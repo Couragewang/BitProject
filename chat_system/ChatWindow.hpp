@@ -5,6 +5,8 @@
 #include <string>
 #include <string.h>
 #include <ncurses.h>
+#include <pthread.h>
+#include "ChatClient.hpp"
 //#include "ProtocolUtil.hpp"
 
 class ChatWindow{
@@ -13,6 +15,8 @@ class ChatWindow{
         WINDOW *output;
         WINDOW *list;
         WINDOW *input;
+    private:
+        std::vector<pthread_t> threads;
 	public:
 	    ChatWindow()
         {
@@ -21,7 +25,7 @@ class ChatWindow{
 	        list   = NULL;
 	        input  = NULL;
             initscr();
-            // curs_set(0);
+            curs_set(0);
         }
         ~ChatWindow()
         {
@@ -93,6 +97,28 @@ class ChatWindow{
 	        	wmove(win_, begin_++, 0);
 	        	wclrtoeol(win_);//clrtoeol是从光标位置清除到光标所在行的结尾
 	        }
+        }
+        static void *DrawWindow(void *arg)
+        {
+            int id = *(int*)arg;
+            delete arg;
+            switch(id){
+            }
+        }
+        void Start(ChatClient *clip)
+        {
+            int i = 0;
+            pthread_t tid;
+            for( ; i < 4; i++ ){
+                int *number = new int;
+                *number = i;
+                pthread_create(&tid, NULL, DrawWindow, (void *)number);
+                threads.push_back(tid);
+            }
+
+            for(i=0; i < 4; i++){
+                pthread_join(threads[i], NULL);
+            }
         }
 };
 

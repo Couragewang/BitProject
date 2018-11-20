@@ -18,13 +18,8 @@ static void Menu()
 void RunClient(ChatClient *clip)
 {
     ChatWindow *winp = new ChatWindow();
-//
-//	winp->DrawHeader();
-//    winp->DrawList();
-//    winp->DrawOutput();
-//    winp->DrawInput();
-//    sleep(10);
- //   delete winp;
+    winp->Start(clip);
+    delete winp;
 }
 
 int main(int argc, char *argv[])
