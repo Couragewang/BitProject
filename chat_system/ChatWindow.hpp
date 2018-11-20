@@ -3,26 +3,27 @@
 
 #include <iostream>
 #include <string>
-#include <ncurses.h>
 #include <string.h>
-#include "ProtocolUtil.hpp"
+#include <ncurses.h>
+//#include "ProtocolUtil.hpp"
 
 class ChatWindow{
 	private:
-		WINDOW *header;
-		WINDOW *output;
-		WINDOW *list;
-		WINDOW *input;
+        WINDOW *header;
+        WINDOW *output;
+        WINDOW *list;
+        WINDOW *input;
 	public:
-		ChatWindow(){
+	    ChatWindow()
+        {
 	        header = NULL;
 	        output = NULL;
 	        list   = NULL;
 	        input  = NULL;
             initscr();
-            curs_set(0);
+            // curs_set(0);
         }
-		~ChatWindow()
+        ~ChatWindow()
         {
 	        delwin(header);
 	        delwin(output);
@@ -30,7 +31,7 @@ class ChatWindow{
 	        delwin(input);
             endwin();
         }
-		WINDOW *GetHeader(){ return header;}
+        WINDOW *GetHeader(){ return header;}
 		WINDOW *GetOutput(){ return output;}
 		WINDOW *GetList(){return list;}
 		WINDOW *GetInput(){return input;}
@@ -80,7 +81,8 @@ class ChatWindow{
         }
 		void GetStringToWin(WINDOW *win_, std::string &string_)
         {
-        	char buffer_[MESSAGE_SIZE];
+        //	char buffer_[MESSAGE_SIZE];
+        	char buffer_[1024];
         	memset(buffer_, '\0', sizeof(buffer_));
         	wgetnstr(win_, buffer_, sizeof(buffer_));
         	string_ = buffer_;
@@ -95,3 +97,6 @@ class ChatWindow{
 };
 
 #endif
+
+
+

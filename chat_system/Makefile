@@ -1,13 +1,14 @@
 FLAGS=-std=c++11
-LDFLAGS=-lpthread #-static
+LDFLAGS=-ljsoncpp -lpthread
+FIND_PATH=-I./lib/include -L./lib/lib
 
 .PHONY:all
 all:ChatClient ChatServer
 
-ChatClient:ChatClient.cc
-	g++ -o $@ $^ -I./lib/include -L./lib/lib -ljsoncpp -lncurses++ $(FLAGS)  $(LDFLAGS)
 ChatServer:ChatServer.cc
-	g++ -o $@ $^ -I./lib/include -L./lib/lib -ljsoncpp $(FLAGS) $(LDFLAGS)
+	g++ -o $@ $^ $(FLAGS) $(FIND_PATH) $(LDFLAGS) -static
+ChatClient:ChatClient.cc
+	g++ -o $@ $^ $(FLAGS) $(FIND_PATH) $(LDFLAGS) -lncurses #-static
 
 .PHONY:clean
 clean:
