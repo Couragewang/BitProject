@@ -7,20 +7,22 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include "ChatClient.hpp"
-//#include "ProtocolUtil.hpp"
+#include "ProtocolUtil.hpp"
+
 class ChatWindow;
 
 class param{
     public:
-        ChatWindow *clip;
+        ChatWindow *winp;
+        ChatClient *clip;
         int number;
     public:
-        ChatWindow():clip(NULL), number(-1)
+        ChatWindow(ChatWindow *winp_, int number_, ChatClient *clip_):winp(winp_), number(number_),clip(clip_)
         {}
 };
 
 class ChatWindow{
-	private:
+	public:
         WINDOW *header;
         WINDOW *output;
         WINDOW *list;
@@ -59,6 +61,14 @@ class ChatWindow{
 	        box(header, 0, 0);//绘制边框
 	        wrefresh(header); //刷新窗口
         }
+        void HeaderYX(int &y_, int &x_)
+        {
+            getmaxyx(header, y_, x_);
+        }
+        void OutputYX(int &y_, int &x_)
+        {
+            getmaxyx(output, y_, x_);
+        }
 		void DrawList()
         {
 	        int h_ = LINES*3/5;
@@ -92,6 +102,7 @@ class ChatWindow{
 		void PutStringToWin(WINDOW *win_, int y_, int x_, const std::string &string_)
         {
 	        mvwaddstr(win_, y_, x_, string_.c_str());
+	        wrefresh(win_); //刷新窗口
         }
 		void GetStringToWin(WINDOW *win_, std::string &string_)
         {
@@ -108,24 +119,119 @@ class ChatWindow{
 	        	wclrtoeol(win_);//clrtoeol是从光标位置清除到光标所在行的结尾
 	        }
         }
+        static void RunHeader(ChatWindow *winp_)
+        {
+            int y_,x_;
+            std::string welcome_ = "Welcome To Our Chat System";
+            int pos_ = 1;
+            int dir = 0;
+            for( ; ; ){
+                winp_->DrawHeader();
+                winp->HeaderYX(y_, x_);
+                winp_->PutStringToWin(winp_->GetHeader(), y_/2, pos_, welcome_);
+                if(pos_ > x_ - welcome_.size() - 1){
+                    dir = 1;
+                }
+                else if(pos_ < 1){
+                    dir = 0;
+                }
+
+                if(dir == 0){
+                    pos_++;
+                }
+                else{
+                    pos_--;
+                }
+                usleep(200000);
+            }
+        }
+        static void RunOutput(ChatWindow *winp_, ChatClient *clip_)
+        {
+            std::string message_;
+            Message msg;
+            int line = 1;
+            int y_,x_;
+            for( ; ; ){
+                winp_->DrawOutput();
+                winp->OutputYX(y_, x_);
+                clip_->RecvMessage(message_);
+                msg.Deserialize(message_);
+                std::string show_message;
+                show_message = msg.GetNickName();
+                show_message += "-";
+                show_message += msg.GetSchool();
+                show_message += "# ";
+                show_message += msg.GetMsg();
+                
+                if(line > y_ - 1){
+                    line = 1;
+                    winp_->DrawOutput();
+                }
+                winp_->PutStringToWin(winp_->GetOutput(), line++, 1, show_message);
+
+                std::string user;
+                user = msg.GetNickName();
+                user += "-";
+                user += msg.GetSchool();
+
+
+            }
+        }
+        static void RunList(ChatWindow *winp_)
+        {
+            for( ; ; ){
+                winp->DrawList();
+            }
+
+        }
+        static void RunInput(ChatWindow *winp_, ChatClient *clip_)
+        {
+            std::string message_;
+            Message msg;
+            for( ; ; ){
+                winp->DrawInput();
+                clip_->SendMessage(message_);
+            }
+
+        }
         static void *DrawWindow(void *arg)
         {
-            int id = *(int*)arg;
-            delete arg;
-            switch(id){
+            param *param_ = (param*)arg;
+
+            ChatWindow *winp_ = param_->winp;
+            ChatClient *clip_ = param_->clip;
+            int number_ = param_->number;
+
+            delete param_;
+            switch(number){
+                case 0:
+                    RunHeader(winp_);
+                    break;
+                case 1:
+                    RunOutput(winp_, clip_);
+                    break;
+                case 2:
+                    Runlist(winp_);
+                    break;
+                case 3:
+                    RunInput(winp_, clip_);
+                    break;
+                default:
+                    break;
             }
         }
         void Start(ChatClient *clip)
         {
             int i = 0;
             pthread_t tid;
-            for( ; i < 4; i++ ){
-                param *p = new param();
-                pthread_create(&tid, NULL, DrawWindow, (void *)number);
+            int num = 4;
+            for( ; i < num; i++ ){
+                param *p = new param(this, i, clip);
+                pthread_create(&tid, NULL, DrawWindow, (void *)p);
                 threads.push_back(tid);
             }
 
-            for(i=0; i < 4; i++){
+            for(i=0; i < num; i++){
                 pthread_join(threads[i], NULL);
             }
         }
