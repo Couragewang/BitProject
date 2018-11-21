@@ -8,6 +8,16 @@
 #include <pthread.h>
 #include "ChatClient.hpp"
 //#include "ProtocolUtil.hpp"
+class ChatWindow;
+
+class param{
+    public:
+        ChatWindow *clip;
+        int number;
+    public:
+        ChatWindow():clip(NULL), number(-1)
+        {}
+};
 
 class ChatWindow{
 	private:
@@ -110,8 +120,7 @@ class ChatWindow{
             int i = 0;
             pthread_t tid;
             for( ; i < 4; i++ ){
-                int *number = new int;
-                *number = i;
+                param *p = new param();
                 pthread_create(&tid, NULL, DrawWindow, (void *)number);
                 threads.push_back(tid);
             }
