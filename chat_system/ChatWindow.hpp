@@ -3,7 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <string.h>
+#include <unistd.h>
 #include <ncurses.h>
 #include <pthread.h>
 #include "ChatClient.hpp"
@@ -142,7 +144,7 @@ class ChatWindow{
                 else{
                     pos_--;
                 }
-                usleep(200000);
+                usleep(50000);
             }
         }
         static void RunOutput(ChatWindow *winp_, ChatClient *clip_)
@@ -168,29 +170,50 @@ class ChatWindow{
                     winp_->DrawOutput();
                 }
                 winp_->PutStringToWin(winp_->GetOutput(), line++, 1, show_message);
-
+                //也可以写入本地文件，进行持久化
                 std::string user;
                 user = msg.GetNickName();
                 user += "-";
                 user += msg.GetSchool();
 
-
+                clip_->PushUser(user);
             }
         }
-        static void RunList(ChatWindow *winp_)
+        static void RunList(ChatWindow *winp_, ChatClient *clip_)
         {
+            int y_, x_;
             for( ; ; ){
                 winp->DrawList();
+                winp->ListYX(y_, x_);
+                std::vector<std::string> &user = clip_->GetUser();
+                std::vector<std::string>::iterator it = user.begin();
+                for( ; *it != user.end(); it++){
+                    int line = 1;
+                    winp_->PutStringToWin(winp_->GetList(), line++, 1, *it);
+                }
+                usleep(50000);
             }
 
         }
         static void RunInput(ChatWindow *winp_, ChatClient *clip_)
         {
-            std::string message_;
+            std::string enter_msg_;
             Message msg;
+            std::string send_message_;
+            std::string tips = "Please Enter# ";
             for( ; ; ){
                 winp->DrawInput();
-                clip_->SendMessage(message_);
+                winp_->PutStringToWin(winp_->GetInput(), 2, 2, tips);
+                winp->GetStringToWin(winp_->GetInput(), enter_msg_);
+                Me &myself = clip_->GetMySelf();
+
+                msg.SetNickName(myself.nick_name);
+                msg.SetSchool(myself.school);
+                msg.SetMsg(enter_msg_);
+                msg.SetId(myself.id);
+                msg.Serialize(send_message_);
+
+                clip_->SendMessage(send_message_);
             }
 
         }
@@ -201,8 +224,6 @@ class ChatWindow{
             ChatWindow *winp_ = param_->winp;
             ChatClient *clip_ = param_->clip;
             int number_ = param_->number;
-
-            delete param_;
             switch(number){
                 case 0:
                     RunHeader(winp_);
@@ -211,7 +232,7 @@ class ChatWindow{
                     RunOutput(winp_, clip_);
                     break;
                 case 2:
-                    Runlist(winp_);
+                    RunList(winp_, clip_);
                     break;
                 case 3:
                     RunInput(winp_, clip_);
@@ -219,6 +240,7 @@ class ChatWindow{
                 default:
                     break;
             }
+            delete param_;
         }
         void Start(ChatClient *clip)
         {

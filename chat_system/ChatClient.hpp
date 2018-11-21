@@ -15,6 +15,14 @@
 #include "ProtocolUtil.hpp"
 #include "Log.hpp"
 
+class Me{
+    public:
+        std::string nick_name;
+        std::string school;
+        id_type id;
+        std::string passwd;
+};
+
 class ChatClient{
 	private:
 		int sock;
@@ -22,11 +30,12 @@ class ChatClient{
         int login_sock; //login and register tcp port
         int login_port;
 		std::string server_ip;
+        std::vector<std::string> user;
 
+        Me myself;
 	public:
 		ChatClient(std::string server_ip_="127.0.0.1")
-            :server_ip(server_ip_), port(8081), login_port(8080), sock(-1), login_sock(-1)
-        {}
+            :server_ip(server_ip_), port(8081), login_port(8080), sock(-1), login_sock(-1) {}
 		~ChatClient()
         {
             if(sock > 0){
@@ -35,6 +44,24 @@ class ChatClient{
             if(login_sock > 0){
                 close(login_sock);
             }
+        }
+        Me& GetMySelf()
+        {
+            return myself;
+        }
+        void PushUser(std::string &user_)
+        {
+            std::vector<std::string>::iterator it = user.begin();
+            for(; it != user.end(); it++){
+                if(*it == user_){
+                    return;
+                }
+            }
+            user_.push_back(user_);
+        }
+        void PopUser(std::string &user_)
+        {
+            //同学们自己完成
         }
 		void InitClient()
         {
@@ -124,6 +151,10 @@ class ChatClient{
             struct Reply rp_ = {-1, 0};
             recv(login_sock, &rp_, sizeof(rp_), 0);
             if(rp_.status == 0){
+                myself.nick_name = reg_.nick_name;
+                myself.school = reg_school;
+                myself.id = rp_.id;
+                myself.passwd = passwd_one_;
                 std::cout << "Your Login Id Is : \"" << rp_.id << "\" Please Remember!" << std::endl;
                 ret = true;
             }else{
