@@ -13,6 +13,8 @@ class User{
         std::string school;
         id_type id;
         std::string passwd;
+        struct sockaddr_in client;
+        socklen_t len;
     public:
         User(std::string &n_, std::string &s_, id_type &id_, std::string &passwd_)
         {
@@ -54,7 +56,7 @@ class UserManager{
         {
             return logined_user;
         }
-        int Login(id_type id_, std::string passwd_)
+        int Login(id_type id_, std::string passwd_, struct sockaddr_in &client_, socklen_t &len_)
         {
             int status;
             std::unordered_map<id_type, User>::iterator it;
@@ -62,6 +64,8 @@ class UserManager{
             it = register_user.find(id_);
             if(it != register_user.end()){
                 if((it->second).passwd == passwd_){
+                    (it->second).client = client_;
+                    (it->second).len = len_;
                     logined_user.push_back((it->second));
                     logined_count++;
                     status = 0;
@@ -78,7 +82,7 @@ class UserManager{
         }
         int Logout(id_type id_)
         {
-
+            //同学们自己完成
         }
         id_type Register(std::string nick_name_, std::string school_, std::string passwd_)
         {

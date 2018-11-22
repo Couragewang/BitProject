@@ -57,11 +57,15 @@ class ChatClient{
                     return;
                 }
             }
-            user_.push_back(user_);
+            user.push_back(user_);
         }
         void PopUser(std::string &user_)
         {
             //同学们自己完成
+        }
+        std::vector<std::string> &GetUser()
+        {
+            return user;
         }
 		void InitClient()
         {
@@ -152,7 +156,7 @@ class ChatClient{
             recv(login_sock, &rp_, sizeof(rp_), 0);
             if(rp_.status == 0){
                 myself.nick_name = reg_.nick_name;
-                myself.school = reg_school;
+                myself.school = reg_.school;
                 myself.id = rp_.id;
                 myself.passwd = passwd_one_;
                 std::cout << "Your Login Id Is : \"" << rp_.id << "\" Please Remember!" << std::endl;

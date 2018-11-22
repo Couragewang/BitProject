@@ -43,9 +43,13 @@ class LoginConnect{
     public:
         int sock;
         void *server;
+        struct sockaddr_in client;
+        socklen_t len;
     public:
-        LoginConnect(int sock_, void *server_):sock(sock_), server(server_)
+        LoginConnect(int sock_, void *server_, struct sockaddr_in client_, socklen_t len_):sock(sock_), server(server_)
         {
+            client = client_;
+            len = len_;
         }
         ~LoginConnect()
         {}
@@ -72,8 +76,14 @@ class Message{
 		std::string msg;
         id_type id;
 	public:
-		Message();
-		~Message();
+		Message()
+        {
+
+        }
+		~Message()
+        {
+
+        }
 
 		const std::string& GetNickName(){return this->nick_name;}
     	const std::string& GetSchool(){return this->school;}

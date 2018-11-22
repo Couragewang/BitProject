@@ -8,7 +8,7 @@ all:ChatClient ChatServer
 ChatServer:ChatServer.cc
 	g++ -o $@ $^ $(FLAGS) $(FIND_PATH) $(LDFLAGS) -static
 ChatClient:ChatClient.cc
-	g++ -o $@ $^ $(FLAGS) $(FIND_PATH) $(LDFLAGS) -lncursesw #-static
+	g++ -o $@ $^ $(FLAGS) $(FIND_PATH) $(LDFLAGS) -lncursesw -static
 
 .PHONY:clean
 clean:

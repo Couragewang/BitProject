@@ -87,6 +87,7 @@ class ChatServer{
 	        }
             else{
 	        	LOG(INFO, "recv data from client success!");
+	        	LOG(INFO, msg_);
 	        	message_ = msg_;
                 pool.PutMessage(message_);
 	        }
@@ -98,6 +99,7 @@ class ChatServer{
 	        	LOG(ERROR, "send data to client failed!");
 	        }else{
 	        	LOG(INFO, "send data to client success!");
+	        	LOG(INFO, message_);
 	        }
         }
         int BroadcastMessage()
@@ -107,7 +109,7 @@ class ChatServer{
             std::vector<User>&u_ = user_manager.GetLoginedUser(); //bug?
             std::vector<User>::iterator it = u_.begin();
             for( ; it != u_.end(); it++){
-                //SendMessage(const std::string &message_, struct sockaddr_in &client_, socklen_t &len_)
+                SendMessage(message_, it->client, it->len);
             }
         }
         static void *ProductMessage(void *arg)
@@ -127,12 +129,12 @@ class ChatServer{
                 serp_->BroadcastMessage();
             }
         }
-        static int HandlerLogin(int sock_, ChatServer *serp_)
+        static int HandlerLogin(int sock_, ChatServer *serp_, struct sockaddr_in &client_, socklen_t &len_)
         {
             UserManager &um_ = serp_->GetUserManager();
             struct LoginInfo lg_;
             recv(sock_, &lg_, sizeof(lg_), 0);
-            return um_.Login(lg_.id, lg_.passwd);
+            return um_.Login(lg_.id, lg_.passwd, client_, len_);
         }
         static int HandlerRegister(int sock_, ChatServer *serp_, id_t &id_)
         {
@@ -158,7 +160,7 @@ class ChatServer{
             }
             switch(type_){
                 case LOGIN:
-                    status_ = HandlerLogin(sock_, serp_);
+                    status_ = HandlerLogin(sock_, serp_, conn_->client, conn_->len);
                     break;
                 case REGISTER:
                     status_ = HandlerRegister(sock_, serp_, id_);
@@ -191,7 +193,7 @@ end:
                     continue;
                 }
                 pthread_t tid_;
-                LoginConnect *conn_ = new LoginConnect(new_sock_, this);
+                LoginConnect *conn_ = new LoginConnect(new_sock_, this, peer, len);
                 pthread_create(&tid_, NULL, HandlerNewClient, (void *)conn_);
             }
         }
