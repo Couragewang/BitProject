@@ -25,7 +25,9 @@ class ChatServer{
         UserManager user_manager;
 
     public:
-        ChatServer(int login_port_, int port_):sock(-1), login_port(login_port_), port(port_)
+        //ChatServer(int login_port_, int port_):sock(-1), login_port(login_port_), port(port_)
+        //{}
+        ChatServer():sock(-1), login_port(8080), port(8081)
         {}
         void InitServer()
         {
@@ -89,7 +91,14 @@ class ChatServer{
 	        	LOG(INFO, "recv data from client success!");
 	        	LOG(INFO, msg_);
 	        	message_ = msg_;
-                pool.PutMessage(message_);
+                Message client_message_;
+                client_message_.Deserialize(message_);
+                if(user_manager.SafeCheck(client_message_.GetId(), client_, len_)){
+                    pool.PutMessage(message_);
+                }
+                else{
+                    LOG(WARNING, "illegal user try send message!");
+                }
 	        }
         }
         void SendMessage(const std::string &message_, struct sockaddr_in &client_, socklen_t &len_)
@@ -100,13 +109,14 @@ class ChatServer{
 	        }else{
 	        	LOG(INFO, "send data to client success!");
 	        	LOG(INFO, message_);
+                //std::cout << inet_ntoa(client_.sin_addr) << " : " << htons(client_.sin_port) << std::endl;
 	        }
         }
         int BroadcastMessage()
         {
             std::string message_;
             pool.GetMessage(message_);
-            std::vector<User>&u_ = user_manager.GetLoginedUser(); //bug?
+            std::vector<User>&u_ = user_manager.GetOnlineUser(); //bug?
             std::vector<User>::iterator it = u_.begin();
             for( ; it != u_.end(); it++){
                 SendMessage(message_, it->client, it->len);
@@ -128,6 +138,10 @@ class ChatServer{
             for ( ; ; ){
                 serp_->BroadcastMessage();
             }
+        }
+        static int HandlerLogout()
+        {
+            //同学们自己完成
         }
         static int HandlerLogin(int sock_, ChatServer *serp_, struct sockaddr_in &client_, socklen_t &len_)
         {

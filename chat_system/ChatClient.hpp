@@ -41,9 +41,6 @@ class ChatClient{
             if(sock > 0){
                 close(sock);
             }
-            if(login_sock > 0){
-                close(login_sock);
-            }
         }
         Me& GetMySelf()
         {
@@ -194,7 +191,9 @@ class ChatClient{
 	        ssize_t size_ = recvfrom(sock, buf_, sizeof(buf_), 0, (struct sockaddr*)&dst_, &len_);
 	        if(size_ > 0){
 	        	message_ = buf_;
-	        }
+	        }else{
+                message_ = "Failed";
+            }
 	        return size_;
         }
 };

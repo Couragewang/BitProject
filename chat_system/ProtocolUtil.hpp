@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <json/json.h>
 
 #define MESSAGE_SIZE 1024
@@ -77,19 +80,13 @@ class Message{
         id_type id;
 	public:
 		Message()
-        {
-
-        }
+        {}
 		~Message()
-        {
-
-        }
-
+        {}
 		const std::string& GetNickName(){return this->nick_name;}
     	const std::string& GetSchool(){return this->school;}
     	const std::string& GetMsg(){return this->msg;}
     	const id_type& GetId(){return this->id;}
-
 		void SetNickName(const std::string &n_)
 		{this->nick_name = n_;}
 		void SetSchool(const std::string &s_)
@@ -98,7 +95,6 @@ class Message{
 		{this->msg = m_;}
         void SetId(const id_type &i_)
         {this->id = i_;}
-
         void Serialize(std::string &message_)
         {
         	Json::Value value_;

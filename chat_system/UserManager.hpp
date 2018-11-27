@@ -6,6 +6,11 @@
 #include <vector>
 #include <pthread.h>
 #include "ProtocolUtil.hpp"
+#include "Log.hpp"
+
+#define USER_OFFLINE 0
+#define USER_LOGINED 1
+#define USER_ONLINE  2
 
 class User{
     public:
@@ -15,6 +20,7 @@ class User{
         std::string passwd;
         struct sockaddr_in client;
         socklen_t len;
+        int status;
     public:
         User(std::string &n_, std::string &s_, id_type &id_, std::string &passwd_)
         {
@@ -22,6 +28,7 @@ class User{
             school = s_;
             id = id_;
             passwd = passwd_;
+            status = USER_OFFLINE;
         }
 };
 
@@ -30,7 +37,8 @@ class UserManager{
         int id_count;
         int logined_count;
         std::unordered_map<id_type, User> register_user;
-        std::vector<User> logined_user;
+        //std::vector<User> logined_user;
+        std::vector<User> online_user;
         pthread_mutex_t lock;
     private:
         void LockManager()
@@ -52,9 +60,30 @@ class UserManager{
             logined_count = 0;
             pthread_mutex_init(&lock, NULL);
         }
-        std::vector<User>& GetLoginedUser()
+        bool SafeCheck(id_type id_, struct sockaddr_in &client_, socklen_t &len_)
         {
-            return logined_user;
+            std::unordered_map<id_type, User>::iterator it;
+            it = register_user.find(id_);
+            if(it == register_user.end()){
+                return false;
+            }
+            if((it->second).status == USER_OFFLINE){
+                return false;
+            }
+            if((it->second).status == USER_ONLINE){
+                return true;
+            }
+            if((it->second).status == USER_LOGINED){
+                (it->second).status = USER_ONLINE;
+                (it->second).client = client_;
+                (it->second).len = len_;
+                online_user.push_back(it->second);
+            }
+            return true;
+        }
+        std::vector<User>& GetOnlineUser()
+        {
+            return online_user;
         }
         int Login(id_type id_, std::string passwd_, struct sockaddr_in &client_, socklen_t &len_)
         {
@@ -64,9 +93,8 @@ class UserManager{
             it = register_user.find(id_);
             if(it != register_user.end()){
                 if((it->second).passwd == passwd_){
-                    (it->second).client = client_;
-                    (it->second).len = len_;
-                    logined_user.push_back((it->second));
+                    LOG(INFO, "user Login success, add to Logined user!");
+                    (it->second).status = USER_LOGINED;
                     logined_count++;
                     status = 0;
                 }

@@ -2,15 +2,15 @@
 
 void Usage(std::string proc_)
 {
-    std::cout << proc_ << " login_port message_port" << std::endl;
+    std::cout << "Usage: " << proc_ << std::endl;
 }
 int main(int argc, char *argv[])
 {
-    if(argc != 3){
+    if(argc != 1){
         Usage(argv[0]);
         exit(1);
     }
-    ChatServer *serp_ = new ChatServer(atoi(argv[1]), atoi(argv[2]));
+    ChatServer *serp_ = new ChatServer();
 
     serp_->InitServer();
     serp_->Start();

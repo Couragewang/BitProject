@@ -14,8 +14,7 @@
 #include "ChatClient.hpp"
 #include "ProtocolUtil.hpp"
 
-class ChatWindow;
-
+class ChatWindow; 
 class Param{
     public:
         ChatWindow *winp;
@@ -32,6 +31,7 @@ class ChatWindow{
         WINDOW *output;
         WINDOW *list;
         WINDOW *input;
+       // bool is_quit;
     private:
         std::vector<pthread_t> threads;
         pthread_mutex_t lock;
@@ -66,8 +66,8 @@ class ChatWindow{
 	        int y_  = 0;
 	        int x_  = 0;
 	        header = newwin(h_, w_, y_, x_);
-            pthread_mutex_lock(&lock);
 	        box(header, 0, 0);//绘制边框
+            pthread_mutex_lock(&lock);
 	        wrefresh(header); //刷新窗口
             pthread_mutex_unlock(&lock);
         }
@@ -90,8 +90,8 @@ class ChatWindow{
 	        int y_ = LINES/5;
 	        int x_ = COLS*3/4;
 	        list = newwin(h_, w_, y_, x_);
-            pthread_mutex_lock(&lock);
 	        box(list, 0, 0);//绘制边框
+            pthread_mutex_lock(&lock);
 	        wrefresh(list); //刷新窗口
             pthread_mutex_unlock(&lock);
         }
@@ -102,8 +102,8 @@ class ChatWindow{
 	        int y_ = LINES/5;
 	        int x_ = 0;
 	        output = newwin(h_, w_, y_, x_);
-            pthread_mutex_lock(&lock);
 	        box(output, 0, 0);//绘制边框
+            pthread_mutex_lock(&lock);
 	        wrefresh(output); //刷新窗口
             pthread_mutex_unlock(&lock);
         }
@@ -114,15 +114,15 @@ class ChatWindow{
 	        int y_ = 4*LINES/5;
 	        int x_ = 0;
 	        input = newwin(h_, w_, y_, x_);
-            pthread_mutex_lock(&lock);
 	        box(input, 0, 0);//绘制边框
+            pthread_mutex_lock(&lock);
 	        wrefresh(input); //刷新窗口
             pthread_mutex_unlock(&lock);
         }
 		void PutStringToWin(WINDOW *win_, int y_, int x_, const std::string &string_)
         {
-            pthread_mutex_lock(&lock);
 	        mvwaddstr(win_, y_, x_, string_.c_str());
+            pthread_mutex_lock(&lock);
 	        wrefresh(win_); //刷新窗口
             pthread_mutex_unlock(&lock);
         }
@@ -164,7 +164,7 @@ class ChatWindow{
                 else{
                     pos_--;
                 }
-                usleep(800000);
+                sleep(1);
             }
         }
         static void RunOutput(ChatWindow *winp_, ChatClient *clip_)
@@ -173,31 +173,24 @@ class ChatWindow{
             Message msg;
             int line = 1;
             int y_,x_;
+            winp_->DrawOutput();
             for( ; ; ){
-                winp_->DrawOutput();
                 winp_->OutputYX(y_, x_);
-                //int fd = open("./log.txt", O_CREAT | O_WRONLY, 0666);
                 clip_->RecvMessage(message_);
-
-                //write(fd, message_.c_str(), message_.size());
-                //close(fd);
-
                 msg.Deserialize(message_);
+
                 std::string show_message;
                 show_message = msg.GetNickName();
                 show_message += "-";
                 show_message += msg.GetSchool();
                 show_message += "# ";
                 show_message += msg.GetMsg();
-                
-                if(line > y_ - 1){
+                if(line > y_ - 2){
                     line = 1;
                     winp_->DrawOutput();
                 }
-                //winp_->PutStringToWin(winp_->GetOutput(), line++, 1, show_message);
-                show_message="aaaaaaaaaaaaaa";
-                winp_->PutStringToWin(winp_->GetOutput(), 2, 2, show_message);
-                std::cout << show_message << std::endl;
+                //std::cout << show_message << std::endl;
+                winp_->PutStringToWin(winp_->GetOutput(), line++, 1, show_message);
 
                 //也可以写入本地文件，进行持久化
                 std::string user;
@@ -220,7 +213,7 @@ class ChatWindow{
                     int line = 1;
                     winp_->PutStringToWin(winp_->GetList(), line++, 1, *it);
                 }
-                usleep(50000);
+                sleep(2);
             }
 
         }
@@ -230,18 +223,16 @@ class ChatWindow{
             Message msg;
             std::string send_message_;
             std::string tips = "Please Enter# ";
+            Me &myself = clip_->GetMySelf();
+            msg.SetNickName(myself.nick_name);
+            msg.SetSchool(myself.school);
+            msg.SetId(myself.id);
             for( ; ; ){
                 winp_->DrawInput();
                 winp_->PutStringToWin(winp_->GetInput(), 2, 2, tips);
                 winp_->GetStringToWin(winp_->GetInput(), enter_msg_);
-                Me &myself = clip_->GetMySelf();
-
-                msg.SetNickName(myself.nick_name);
-                msg.SetSchool(myself.school);
                 msg.SetMsg(enter_msg_);
-                msg.SetId(myself.id);
                 msg.Serialize(send_message_);
-
                 clip_->SendMessage(send_message_);
             }
 

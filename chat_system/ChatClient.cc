@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
     }
     ChatClient *clip_ = new ChatClient( argv[1] );
 	clip_->InitClient();
-
     int select = -1;
     while(1){
         Menu();
