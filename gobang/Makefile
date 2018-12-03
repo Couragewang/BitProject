@@ -1,9 +1,10 @@
 .PHONY:all
-all: client server
-client:main_client.cpp
+all: GobangServer GobangClient
+
+GobangClient:GobangClient.cc
 	g++ -o $@ $^ -std=c++1z -lzmq
-server:main_server.cpp
+GobangServer:GobangServer.cc
 	g++ -o $@ $^ -std=c++1z -lzmq
 .PHONY:clean
 clean:
-	rm -f client server
+	rm -f GobangServer GobangClient
