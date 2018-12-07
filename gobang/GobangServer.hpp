@@ -11,120 +11,13 @@
 #define ROW 5
 #define COL 5
 
-#define LEVEL_NUM 1000
 #define ROOM_NUM 5000
 
-typedef enum{
-    OFFLINE,
-    ONLINE,
-    MATCHING,
-    PLAYING,
-}status_t;
 
-typedef enum{
-    BLACK,
-    RED,
-    NONE,
-}chessman_t;
 
 #define DOGFALL    0
 #define WIN 1
 #define ROUND_NEXT 2
-
-class Room;
-
-class Player{
-    private:
-        int id;
-        std::string passwd;
-        status_t status;
-        std::string nick_name;
-        chessman_t chessman;
-        int win_count; // 1
-        int lose_count;//-1
-        int tie_count; // 0
-
-        int level; //3000
-        Room *room;
-
-        pthread_mutex_t lock;
-        pthread_cond_t cond;
-    public:
-        Player(int id_, std::string passwd_, std::string nick_name_):\
-            id(id_), passwd(passwd_), \
-            status(OFFLINE), nick_name(nick_name_), \
-            checcman(NONE), win_count(0), lose_count(0),\
-            tie_count(0), level(0), room_number(-1)
-        {
-            pthread_mutex_init(&lock, NULL);
-            pthread_cond_init(&cond, NULL);
-        }
-        char ChessColor()
-        {
-            if(chessman == BLACK){
-                return 'X';
-            }
-            else if(chessman == RED){
-                return 'O';
-            }
-            else{
-                return '*';
-            }
-        }
-        void Online()
-        {
-            status = ONLINE;
-        }
-        void Offline()
-        {
-            status = OFFLINE;
-        }
-        void Matching()
-        {
-            status = MATCHING;
-        }
-        void Playing()
-        {
-            status = PLAYING;
-        }
-        std::string Passwd()
-        {
-            return passwd;
-        }
-        int Id()
-        {
-            return id;
-        }
-        int Level()
-        {
-            return level;
-        }
-        status_t Status()
-        {
-            return status;
-        }
-        void SetPlayRoom(int room_)
-        {
-            room_number = room_;
-        }
-        int SetRoom(Room *room_)
-        {
-            room = room_;
-        }
-        void Wait()
-        {
-            pthread_cond_wait(&cond, &lock);
-        }
-        void Wakeup()
-        {
-            pthread_cond_signal(&cond);
-        }
-        ~Player()
-        {
-            pthread_mutex_destroy(&lock);
-            pthread_cond_destroy(&cond);
-        }
-};
 
 class Room{
     private:
@@ -263,45 +156,22 @@ class RoomMamager{
 
 class PlayerManager{
     private:
-        std::unordered_map<int,Player> players;
-        int players_nums;
-        pthread_mutex_t player_lock;
-
-        std::vector< std::vector<Player*> > match_players;
-        pthread_mutex_t match_lock;
-
         RoomMamager   room_manager;
     private:
-        bool AddPlayerToMatchingPool(Player &player_)
-        {
-            bool ret = false;
-            int &level_ = player_.GetLevel();
-            std::vector<Player*> &v = match_players[level_];
-            pthread_mutex_lock(&match_lock);
+};
 
-            std::vector<Player*>::iterator it = std::find(v.begin(), v.end(), &player_);
-            if(it == v.end()){
-                v.push_back(&player_);
-                ret = true;
-            }
-            pthread_mutex_unlock(&match_lock);
+class GameManager{
+    private:
+        PlayerManager player_manager;
+        pid_t match_thread;
 
-            return ret;
-        }
-        void RemovePlayerFromMatchingPool(Player *player_)
-        {
-            int &level_ = player_->GetLevel();
-            std::vector<Player*> &v = match_players[level_];
-            std::vector<Player*>::iterator it = std::find(v.begin(), v.end(), player_);
-            if(it != v.end()){
-                v.erase(it);
-            }
-        }
+        pthread_mutex_t lock;
+        pthread_cond_t  cond;
     public:
-        PlayerManager():player_nums(0),match_players(LEVEL_NUM);
+        GameManager()
         {
-            pthread_mutex_init(&player_lock, NULL);
-            pthread_mutex_init(&match_lock, NULL);
+            pthread_mutex_init(&lock);
+            pthread_cond_init(&cond);
         }
         bool Register(std::string &nick_name_, std::string &passwd_)
         {
@@ -343,97 +213,6 @@ class PlayerManager{
 
             return ret;
         }
-        bool InMatchingPool(int id_)
-        {
-            bool ret = false;
-            pthread_mutex_lock(&player_lock);
-            std::unordered_map<int, Player>::iterator it = players.find(id_);
-            if(it != players.end()){
-                Player &player_ = it->second;
-                pthread_mutex_unlock(&player_lock);
-                player_.Matching();
-                ret = AddPlayerToMatchingPool(player_);
-            }
-            else{
-                pthread_mutex_unlock(&player_lock);
-            }
-            return ret;
-        }
-        bool PlayerWait(int id_)
-        {
-            pthread_mutex_lock(&player_lock);
-            std::unordered_map<int, Player>::iterator it = players.find(id_);
-            if(it != players.end()){
-                Player &player_ = it->second;
-                pthread_mutex_unlock(&player_lock);
-                player_.Wait();
-                return player_.Status() == PLAYING;
-            }
-            return false;
-        }
-        void PlayPrepare(Player *player_one_, Player *player_two_)
-        {
-            room_manager.CreateNewRoom(player_one_, player_two_);
-        }
-        bool MatchBegin()
-        {
-            for(auto i_ = LEVEL_NUM - 1; i_ >= 0; i_--){
-                pthread_mutex_lock(&match_lock);
-
-                Player *player_alone = NULL;
-                std::vector<Player*> &v = match_players[i_];
-                if(!v.empty()){
-                    if(v.size() & 1){
-                        if(player_alone == NULL){
-                            player_alone = v[size_-1];
-                            size_--;
-                        }
-                        else{
-                            Player *player_one_ = player_alone;
-                            Player *player_two_ = v[size_-1];
-                            size_--;
-                            player_alone = NULL;
-                            PlayPrepare(player_one_, player_two_);
-                            RemovePlayerFromMatchingPool(player_one_);
-                            RemovePlayerFromMatchingPool(player_two_);
-                            player_one_.Playing();
-                            player_two_.Playing();
-                            player_one_.Wakeup();
-                            player_two_.Wakeup();
-                        }
-                    }
-                    for(auto j_ = 0; j_ < v.size()-1; j_+=2){
-                        Player *play_one_ = v[j_];
-                        Player *play_two_ = v[j_+1];
-                        PlayPrepare(player_one_, player_two_);
-                        RemovePlayerFromMatchingPool(player_one_);
-                        RemovePlayerFromMatchingPool(player_two_);
-                        player_one_.Playing();
-                        player_two_.Playing();
-                        player_one_.Wakeup();
-                        player_two_.Wakeup();
-                    }
-                }
-
-                pthread_mutex_unlock(&match_lock);
-            }
-        }
-        ~PlayerManager()
-        {
-            pthread_mutex_destroy(&lock);
-            pthread_mutex_destroy(&match_lock);
-        }
-};
-
-class GameManager{
-    private:
-        PlayerManager player_manager;
-        pid_t match_thread;
-    public:
-        GameManager():room_manager(ROOM_NUM)
-        {
-            pthread_mutex_init(&match_lock, NULL);
-        }
         void MatchRun()
         {
             player_manager.MatchBegin();
@@ -443,6 +222,7 @@ class GameManager{
             pthread_detach(pthread_self());
             GameManager *gm = (GameManager*)arg;
             for( ; ; ){
+                //gm->WaitMatch();
                 gm->MatchRun();
             }
         }
@@ -455,6 +235,7 @@ class GameManager{
             bool ret = player_manager.InMatchingPool(id_);
             if(ret){
                 int ret = player_manager.PlayerWait(id_);
+
             }
             return ret;
         }
@@ -463,23 +244,19 @@ class GameManager{
             std::unordered_map<int, Player>::iterator it = players.find(id_);
             if(it != players.end()){
                 Player &player_ = it->second;
-                Room *room_ = player_.GetPlayRoom();
+                Room *room_ = player_.GetRoom();
                 int result = room_->Play(player_, x_, y_);
             }
         }
         ~GameManager()
         {
-            pthread_mutex_destroy(&match_lock);
+            pthread_mutex_destroy(&lock);
+            pthread_cond_destroy(&cond);
         }
 };
 
 
 #endif
-
-
-
-
-
 
 
 
