@@ -51,6 +51,10 @@ class GameManager{
             int result = pm.Play(id_, x_, y_);
             return result;
         }
+        int WhoWin(int id_)
+        {
+            return pm.WhoWin(id_);
+        }
         //match thread run
         bool MatchRun()
         {

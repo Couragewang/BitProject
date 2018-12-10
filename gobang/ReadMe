@@ -1,0 +1,3 @@
+sudo yum install centos-release-scl
+sudo yum install devtoolset-6
+scl enable devtoolset-6 bash

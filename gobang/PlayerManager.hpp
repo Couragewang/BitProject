@@ -293,10 +293,11 @@ class PlayerManager{
             int room_id_ = players[id_].Room();
             char color_ = players[id_].ChessColor();
             int result_ = rm.RoomGame(room_id_, id_, x_, y_, color_);
-            if(result_ == -2 || result_ > 0){
-                GameEnd();
-            }
             return result;
+        }
+        int WhoWin()
+        {
+
         }
         ~PlayerManager()
         {
