@@ -4,9 +4,9 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include "RoomManager.hpp"
 
 #define LEVEL_NUM 1000
-class Room;
 
 class Basic{
     public:
@@ -64,6 +64,10 @@ class Player{
         {
             return status.chessman;
         }
+        void SetChessColor(char color_)
+        {
+            return status.chessman = color_;
+        }
         void Online()
         {
             status.stat = ONLINE;
@@ -92,7 +96,7 @@ class Player{
         {
             return basic.level;
         }
-        status_t Status()
+        status_t Stat()
         {
             return basic.stat;
         }
@@ -102,7 +106,7 @@ class Player{
         }
         int SetRoom(int room_number_)
         {
-            room = room_number_;
+            status.room = room_number_;
         }
         void Wait()
         {
@@ -126,7 +130,10 @@ class PlayerManager{
         pthread_mutex_t players_lock;
 
         std::vector< std::vector<int> > match_pool;
+        int matching_players;
         pthread_mutex_t pool_lock;
+
+        RoomManager rm;
     public:
         void LockMatchPool()
         {
@@ -134,25 +141,85 @@ class PlayerManager{
         }
         void UnlockMatchPool()
         {
-            pthread_mutex_lock(&pool_lock);
+            pthread_mutex_unlock(&pool_lock);
         }
-    public:
-        PlayerManager():assign_id(0),match_pool(LEVEL_NUM);
+        void LockPlayers()
         {
-            pthread_mutex_init(&players_lock, NULL);
-            pthread_mutex_init(&pool_lock, NULL);
+            pthread_mutex_lock(&player_lock);
         }
-        bool PushMatchPool(int id_)
+        void UnlockPlayers()
+        {
+            pthread_mutex_unlock(&player_lock);
+        }
+        bool PopMatchingPoolCore(int id_)
         {
             bool ret = false;
             int level_ = players[id_].Level();
             std::vector<int> &v = match_pool[level_];
+            std::vector<int>::iterator it = std::find(v.begin(), v.end(), player_);
+            if(it != v.end()){
+                v.erase(it);
+                matching_players--;
+                ret = true;
+            }
+            return false;
+        }
+    public:
+        PlayerManager():assign_id(0),match_pool(LEVEL_NUM),matching_players(0)
+        {
+            pthread_mutex_init(&players_lock, NULL);
+            pthread_mutex_init(&pool_lock, NULL);
+        }
+        void InsertNewPlayer(std::string &nick_name_, std::string passwd_)
+        {
+            LockPlayers();
+
+            int id_ = assign_id++;
+            Player p_(id_, passwd_, nick_name_);
+            players.insert({id_, player_});
+
+            UnlockPlayers();
+        }
+        bool IsPlayerLegal(int id_, std::string &passwd_)
+        {
+            bool ret = false;
+            LockPlayers();
+
+            auto search = players.find(id_);
+            if(search != players.end() && passwd_ == (search->second).Passwd()){
+                ret = true;
+            }
+
+            UnlockPlayers();
+
+            return ret;
+        }
+        bool Online(int id_)
+        {
+            LockPlayers();
+            players[id_].Online();
+            UnlockPlayers();
+        }
+        bool Offline(int id_)
+        {
+            LockPlayers();
+            players[id_].Offline();
+            UnlockPlayers();
+        }
+        ///////////////
+        bool PushMatchPool(int id_)
+        {
+            bool ret = false;
+            players[id_].Matching();
 
             LockMatchPool();
 
+            int level_ = players[id_].Level();
+            std::vector<int> &v = match_pool[level_];
             std::vector<int>::iterator it = std::find(v.begin(), v.end(), id_);
             if(it == v.end()){
                 v.push_back(id_);
+                matching_players++;
                 ret = true;
             }
 
@@ -160,90 +227,69 @@ class PlayerManager{
 
             return ret;
         }
-        void PopMatchingPool(int id_)
-        {
-            int level_ = players[id_].Level();
-            std::vector<int> &v = match_pool[level_];
-            std::vector<int>::iterator it = std::find(v.begin(), v.end(), player_);
-            if(it != v.end()){
-                v.erase(it);
-            }
-        }
-        bool InMatchingPool(int id_)
+        bool PopMatchingPool(int id_)
         {
             bool ret = false;
-            pthread_mutex_lock(&player_lock);
-            std::unordered_map<int, Player>::iterator it = players.find(id_);
-            if(it != players.end()){
-                Player &player_ = it->second;
-                pthread_mutex_unlock(&player_lock);
-                player_.Matching();
-                ret = AddPlayerToMatchingPool(player_);
-            }
-            else{
-                pthread_mutex_unlock(&player_lock);
-            }
+            LockMatchPool();
+            ret = PopMatchingPoolCore(id_);
+            UnlockMatchPool();
+            players[id_].Playing();
             return ret;
         }
         bool PlayerWait(int id_)
         {
-            pthread_mutex_lock(&player_lock);
-            std::unordered_map<int, Player>::iterator it = players.find(id_);
-            if(it != players.end()){
-                Player &player_ = it->second;
-                pthread_mutex_unlock(&player_lock);
-                player_.Wait();
-                return player_.Status() == PLAYING;
+            while(players[id_].Stat() != Playing || players[id_].Room() == -1){
+                players[id_].Wait();
             }
-            else{
-                pthread_mutex_lock(&player_lock);
-            }
-            return false;
+            return true;
         }
-        void PlayPrepare(Player *player_one_, Player *player_two_)
+        void GamePrepare(int room_id_, int id1_, int id2_)
         {
-            room_manager.CreateNewRoom(player_one_, player_two_);
-        }
-        bool MatchBegin()
-        {
-            for(auto i_ = LEVEL_NUM - 1; i_ >= 0; i_--){
-                pthread_mutex_lock(&match_lock);
+            PopMatchingPoolCore(id1_);
+            PopMatchingPoolCore(id2_);
 
-                Player *player_alone = NULL;
-                std::vector<Player*> &v = match_players[i_];
-                if(!v.empty()){
-                    if(v.size() & 1){
-                        if(player_alone == NULL){
-                            player_alone = v[v.size()-1];
-                        }
-                        else{
-                            Player *player_one_ = player_alone;
-                            Player *player_two_ = v[size_-1];
-                            player_alone = NULL;
-                            PlayPrepare(player_one_, player_two_);
-                            RemovePlayerFromMatchingPool(player_one_);
-                            RemovePlayerFromMatchingPool(player_two_);
-                            player_one_.Playing();
-                            player_two_.Playing();
-                            player_one_.Wakeup();
-                            player_two_.Wakeup();
-                        }
-                    }
-                    for(auto j_ = 0; j_ < v.size()-1; j_+=2){
-                        Player *play_one_ = v[j_];
-                        Player *play_two_ = v[j_+1];
-                        PlayPrepare(player_one_, player_two_);
-                        RemovePlayerFromMatchingPool(player_one_);
-                        RemovePlayerFromMatchingPool(player_two_);
-                        player_one_.Playing();
-                        player_two_.Playing();
-                        player_one_.Wakeup();
-                        player_two_.Wakeup();
-                    }
+            players[id1_].SetRoom(room_id);
+            players[id2_].SetRoom(room_id);
+            players[id2_].SetChessColor('O');
+
+            Players[id1_].Playing();
+            Players[id2_].Playing();
+
+            Players[id1_].Wakeup();
+            Players[id2_].Wakeup();
+        }
+        void Match()
+        {
+            bool ret = false;
+            std::vector<int> id_list_;
+
+            LockMatchPool();
+            for(auto i = LEVEL_NUM; i >= 0; i--){
+                auto &v = match_pool[i];
+                if(v.empty()){
+                    continue;
                 }
-
-                pthread_mutex_unlock(&match_lock);
+                int size_ = v.size();
+                if(size_ & 1){
+                    id_list_.push_back(v[size_-1]);
+                    size_--;
+                }
+                for(auto j = 0; j < size_; j+=2){
+                    int room_id_ = pm.CreateRoom(v[j], v[j+1]);
+                    GamePrepare(room_id, v[j], v[j+1]);
+                }
             }
+            int size_ = id_list_.size();
+            size_ &= (~1);
+            for (auto i=0; i < size_; i+=2) {
+                int room_id_ = pm.CreateRoom(id_list_[i], id_list_[i+1]);
+                GamePrepare(room_id, id_list_[i], id_list[i+1]);
+            }
+            UnlockMatchPool();
+        }
+        int Play(int id_, int x_, int y_)
+        {
+            rm
         }
         ~PlayerManager()
         {
