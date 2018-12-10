@@ -13,9 +13,6 @@
 #define COL 5
 
 
-#define DOGFALL    0
-#define WIN 1
-#define ROUND_NEXT 2
 
 
 class GameManager{
@@ -56,6 +53,7 @@ class GameManager{
         int Game(int id_, int x_, int y_)
         {
             int result = pm.Play(id_, x_, y_);
+            return result;
         }
         //match thread run
         bool MatchRun()

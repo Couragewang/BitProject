@@ -289,7 +289,13 @@ class PlayerManager{
         }
         int Play(int id_, int x_, int y_)
         {
-            rm
+            int room_id_ = players[id_].Room();
+            char color_ = players[id_].ChessColor();
+            int result_ = rm.RoomGame(room_id_, id_, x_, y_, color_);
+            if(result_ == -2 || result_ > 0){
+                GameEnd();
+            }
+            return result;
         }
         ~PlayerManager()
         {
