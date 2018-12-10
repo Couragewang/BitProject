@@ -12,9 +12,6 @@
 #define ROW 5
 #define COL 5
 
-
-
-
 class GameManager{
     private:
         PlayerManager pm;
@@ -22,10 +19,9 @@ class GameManager{
     public:
         GameManager()
         {}
-        bool Register(std::string nick_name_, std::string passwd_)
+        int Register(std::string nick_name_, std::string passwd_)
         {
-            pm.InsertNewPlayer(nick_name_, passwd_);
-            return true;
+            return pm.InsertNewPlayer(nick_name_, passwd_);
         }
         bool Login( int id_, std::string passwd_ )
         {

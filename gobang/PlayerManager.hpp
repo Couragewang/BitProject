@@ -170,7 +170,7 @@ class PlayerManager{
             pthread_mutex_init(&players_lock, NULL);
             pthread_mutex_init(&pool_lock, NULL);
         }
-        void InsertNewPlayer(std::string &nick_name_, std::string passwd_)
+        int InsertNewPlayer(std::string &nick_name_, std::string passwd_)
         {
             LockPlayers();
 
@@ -179,6 +179,7 @@ class PlayerManager{
             players.insert({id_, player_});
 
             UnlockPlayers();
+            return id_;
         }
         bool IsPlayerLegal(int id_, std::string &passwd_)
         {
