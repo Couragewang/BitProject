@@ -3,13 +3,15 @@
 
 #include <iostream>
 
+#define RED 'X'
+#define BLACK 'O'
+
 class Room{
     private:
         char board[ROW][COL];
         int curr_id;
         int player_one;
         int player_two;
-        int who_win;
         enum{
             FULL,
             DESTROY,
@@ -57,7 +59,7 @@ class Room{
             }
             return result;
         }
-        int WhoWin()
+        int Judge()
         {
             for(auto i_ = 0; i_ < ROW; i_++){
                 if( (board[i_][0] != ' ')&&\
@@ -111,9 +113,14 @@ class Room{
                 status = DESTROY;
             }
         }
+        bool NeedDestroy()
+        {
+            return status == DESTROY;
+        }
         ~Room()
         {
         }
 };
 
 #endif
+

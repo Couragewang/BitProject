@@ -12,6 +12,7 @@ int main()
     GameManager gm(&pm);
 
     server.bind("Register", &pm::Register, &pm);
+    server.bind("PlayerChessColor", &pm::PlayerChessColor, &pm);
     server.bind("Login", &pm::Login, &pm);
     server.bind("Logout", &pm::Logout, &pm);
     server.bind("Match", &pm::Match, &pm);

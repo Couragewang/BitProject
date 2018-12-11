@@ -34,13 +34,10 @@ class Status{
             MATCHING,
             PLAYING,
         }stat;
-        enum{
-            RED='X',
-            BLACK='O';
-        }chessman;
+        char chessman;
         int room;
     public:
-        Status():status(OFFLINE),chessman('X'),room(-1)
+        Status():status(OFFLINE),chessman(RED),room(-1)
         {}
 };
 
@@ -265,7 +262,7 @@ class PlayerManager{
         }
         bool Logout( int id_ )
         {
-            return Offline();
+            return Offline(id_);
         }
         bool Match(int id_)
         {
@@ -278,6 +275,15 @@ class PlayerManager{
             }
             return ret;
         }
+        char PlayerChessColor(int id_)
+        {
+            return players[id_].ChessColor();
+        }
+        Room GetRoom(int id_)
+        {
+            int room_id_ = players[id_].Room();
+            return rm.GetRoom(room_id_);
+        }
         int Game(int id_, int x_, int y_)
         {
             int room_id_ = players[id_].Room();
@@ -285,15 +291,12 @@ class PlayerManager{
             int result_ = rm.Game(room_id_, id_, x_, y_, color_);
             return result;
         }
-        Room GetRoom(int id_)
-        {
-            int room_id_ = players[id_].Room();
-            return rm.GetRoom(room_id_);
-        }
         void GameEnd(int id_)
         {
             int room_id_ = players[id_].Room();
-            return rm.GameEnd(room_id_, id_);
+            players[id_].Online(id_);
+            rm.GameEnd(room_id_, id_);
+            rm.DestroyRoom(room_id_);
         }
         void MatchService()
         {

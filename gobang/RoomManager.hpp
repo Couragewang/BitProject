@@ -40,10 +40,12 @@ class RoomMamager{
         {
             return game_hall[room_id_].Game(id_, x_, y_, color_);
         }
-        int DestroyRoom(int id_)
+        int DestroyRoom(int room_id_)
         {
             LockRoom();
-            game_hall.erase(id_);
+            if(game_hall[room_id_].NeedDestroy()){
+                game_hall.erase(room_id_);
+            }
             UnlockRoom();
         }
         Room GetRoom(int room_id_)

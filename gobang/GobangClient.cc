@@ -7,16 +7,20 @@ static void Usage(std::string proc_)
 {
     std::cout <<"Usage: "<< proc_ << " ip port" << endl;
 }
-
-static void Menu()
+static void Menu1()
 {
     std::cout << "###########################################" << std::endl;
     std::cout << "##  1. register               2. login   ##" << std::endl;
-    std::cout << "##  3. match                  4. logout  ##" << std::endl;
     std::cout << "###########################################" << std::endl;
-    std::cout << "Please Enter";
+    std::cout << "Please Select# ";
 }
-
+static void Menu2()
+{
+    std::cout << "###########################################" << std::endl;
+    std::cout << "## 1. Match                   2. logout  ##" << std::endl;
+    std::cout << "###########################################" << std::endl;
+    std::cout << "Please Select# ";
+}
 void RegisterEnter(std::string &name, std::string &passwd)
 {
     std::string p1,p2;
@@ -39,42 +43,72 @@ static void LoginEnter(int &id, std::string &passwd)
     std::cout << "Please Enter Passwd: ";
     std::cin >> passwd;
 }
-void Game(buttonrpc *client, int id)
+void Play(buttonrpc &client, int &id, char &chess_color)
 {
     int x,y;
-    volatile bool end = false;
-    while(!end){
-        client->call<int>("GetBoard", id).val();
-        ShowBoard();
-        std::cout << "Please Enter Your <x,y>: ";
+    Room room_;
+    volatile is_quit = false;
+    while(!is_quit){
+        room_.ShowBoard();
+        std::cout << "Please Enter Your Pos<x,y>: ";
         std::cin >> x >> y;
-        int result = client->call<int>("Game",id, x, y);
-        switch(result){
+
+        switch(client->call<int>("Game",id, x, y)){
             case -1:
                 std::cout << "It is not your turn yet!" << std::endl;
                 break;
             case -2:
-                std::cout << "Pos be occupied!"
+                std::cout << "Pos be occupied!" << std::endl;
                 break;
             case -3:
-                std::cout << "Pos is not righe!" << std::endl;
+                std::cout << "Pos is not right!" << std::endl;
                 break;
             case 0:
                 {
-                    int result = client->call<int>("WhoWin", id);
-                    if(result == id){
-                        std::cout << "You Win!" << std::endl;
-                        end = true;
-                    }
-                    else if(){
-                        std::cout << "You lose!" << std::endl;
-                        end = true;
-                    }else if(){
-                        std::cout << "Tie!" << std::endl;
-                        end = true;
-                    }else{
+                    room_ = client.call<Room>("GetRoom", id);
+                    char result = room_.judge();
+                    if(result != 'N'){
+                        if(result == 'E'){
+                            std::cout << "Tie Over!" << std::endl;
+                        }
+                        if(result == chess_color){
+                            std::cout << "You Win!" << std::endl;
+                        }
+                        else{
+                            std::cout << "You Lose!" << std::endl;
+                        }
+                        client.call<void>("GameEnd", id);
+                        return;
                     }
                 }
+                break;
+            default:
+                break;
+        }
+
+    }
+}
+void Game(buttonrpc &client, int &id)
+{
+    int select;
+    int x,y;
+    volatile bool end = false;
+    while(!end){
+        Menu2();
+        std::cout >> select;
+        switch(select){
+            case 1:
+                {
+                    if(client.call<bool>("Match", id).val()){
+                        char chess_color = client.call<char>("PlayerChessColor", id);
+                        Play(client, id, chess_color);
+                    }else{
+                        std::cout << "Match Failed!" << std::endl;
+                    }
+                }
+                break;
+            case 2:
+                client.call<bool>("Logout", id).val();
                 break;
             default:
                 break;
@@ -94,7 +128,7 @@ int main(int argc, char *argv[])
     std::string passwd;
     int id;
     while(1){
-        Menu();
+        Menu1();
         std::cin >> select;
         switch(select){
             case 1:
@@ -107,23 +141,11 @@ int main(int argc, char *argv[])
                     LoginEnter(id, passwd);
                     if(client.call<bool>("Login", id, passwd).val()){
                         std::cout << "Login Success!" << std::endl;
+                        Game(client, id);
                     }else{
                         std::cout << "Login Failed!" << std::endl;
                     }
                 }
-                break;
-            case 3:
-                {
-                    if(client.call<bool>("Match", id).val()){
-                        Game(&client, id);
-                    }else{
-                        std::cout << "Match Failed!" << std::endl;
-                    }
-                }
-                break;
-            case 4:
-                client.call<bool>("Logout", id).val();
-                exit(0);
                 break;
             default:
                 Usage(argv[0]);
@@ -133,10 +155,4 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-
-
-
-
-
-
 
