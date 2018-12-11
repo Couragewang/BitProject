@@ -1,15 +1,26 @@
-#include "GobangServer.hpp"
+#include "PlayerManager.hpp"
+#include "GameManager.hpp"
 
-int inc(int a)
-{
-    return a + 1;
-}
+#define PORT 8888
 
 int main()
 {
     buttonrpc server;
-    server.as_server(5555);
-    server.bind("inc", inc);
+    server.as_server(8888);
+
+    PlayerManager pm;
+    GameManager gm(&pm);
+
+    server.bind("Register", &pm::Register, &pm);
+    server.bind("Login", &pm::Login, &pm);
+    server.bind("Logout", &pm::Logout, &pm);
+    server.bind("Match", &pm::Match, &pm);
+    server.bind("Game", &pm::Game, &pm);
+    server.bind("GetRoom", &pm::GetRoom, &pm);
+    server.bind("GameEnd", &pm::GameEnd, &pm);
+
+    gm.StartMatchThread();
+
     server.run();
     return 0;
 }

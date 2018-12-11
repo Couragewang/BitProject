@@ -13,8 +13,7 @@ class Basic{
         int id;
         std::string passwd;
         std::string nick_name;
-    public:
-        Basic(int &id_, std::string &passwd_, std::string &nick_name_):id(0),passwd(passwd_),nick_name(nick_name_);
+    public: Basic(int &id_, std::string &passwd_, std::string &nick_name_):id(0),passwd(passwd_),nick_name(nick_name_);
         {}
 };
 class Score{
@@ -134,7 +133,7 @@ class PlayerManager{
         pthread_mutex_t pool_lock;
 
         RoomManager rm;
-    public:
+    private:
         void LockMatchPool()
         {
             pthread_mutex_lock(&pool_lock);
@@ -164,23 +163,6 @@ class PlayerManager{
             }
             return false;
         }
-    public:
-        PlayerManager():assign_id(0),match_pool(LEVEL_NUM),matching_players(0)
-        {
-            pthread_mutex_init(&players_lock, NULL);
-            pthread_mutex_init(&pool_lock, NULL);
-        }
-        int InsertNewPlayer(std::string &nick_name_, std::string passwd_)
-        {
-            LockPlayers();
-
-            int id_ = assign_id++;
-            Player p_(id_, passwd_, nick_name_);
-            players.insert({id_, player_});
-
-            UnlockPlayers();
-            return id_;
-        }
         bool IsPlayerLegal(int id_, std::string &passwd_)
         {
             bool ret = false;
@@ -207,7 +189,6 @@ class PlayerManager{
             players[id_].Offline();
             UnlockPlayers();
         }
-        ///////////////
         bool PushMatchPool(int id_)
         {
             bool ret = false;
@@ -259,7 +240,62 @@ class PlayerManager{
             Players[id1_].Wakeup();
             Players[id2_].Wakeup();
         }
-        void Match()
+    public:
+        PlayerManager():assign_id(0),match_pool(LEVEL_NUM),matching_players(0)
+        {
+            pthread_mutex_init(&players_lock, NULL);
+            pthread_mutex_init(&pool_lock, NULL);
+        }
+        int Register(std::string nick_name_, std::string passwd_)
+        {
+            LockPlayers();
+            int id_ = assign_id++;
+            Player p_(id_, passwd_, nick_name_);
+            players.insert({id_, player_});
+            UnlockPlayers();
+            return id_;
+        }
+        bool Login( int id_, std::string passwd_ )
+        {
+            bool ret = false;
+            if(IsPlayerLegal(id_, passwd_)){
+                ret = Online(id_);
+            }
+            return ret;
+        }
+        bool Logout( int id_ )
+        {
+            return Offline();
+        }
+        bool Match(int id_)
+        {
+            bool ret = false;
+            if(PushMatchPool(id_)){
+                ret = PlayerWait(id_);
+                if(ret){
+                    PopMatchingPool(id_);
+                }
+            }
+            return ret;
+        }
+        int Game(int id_, int x_, int y_)
+        {
+            int room_id_ = players[id_].Room();
+            char color_ = players[id_].ChessColor();
+            int result_ = rm.Game(room_id_, id_, x_, y_, color_);
+            return result;
+        }
+        Room GetRoom(int id_)
+        {
+            int room_id_ = players[id_].Room();
+            return rm.GetRoom(room_id_);
+        }
+        void GameEnd(int id_)
+        {
+            int room_id_ = players[id_].Room();
+            return rm.GameEnd(room_id_, id_);
+        }
+        void MatchService()
         {
             bool ret = false;
             std::vector<int> id_list_;
@@ -287,17 +323,6 @@ class PlayerManager{
                 GamePrepare(room_id, id_list_[i], id_list[i+1]);
             }
             UnlockMatchPool();
-        }
-        int Play(int id_, int x_, int y_)
-        {
-            int room_id_ = players[id_].Room();
-            char color_ = players[id_].ChessColor();
-            int result_ = rm.RoomGame(room_id_, id_, x_, y_, color_);
-            return result;
-        }
-        int WhoWin()
-        {
-
         }
         ~PlayerManager()
         {

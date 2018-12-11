@@ -1,0 +1,336 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BLACK	PlayerManager.hpp	/^            BLACK='O';$/;"	e	enum:Status::__anon2
+Basic	PlayerManager.hpp	/^class Basic{$/;"	c
+BigEndian	Serializer.hpp	/^		BigEndian,$/;"	e	enum:Serializer::ByteOrder
+BigEndian	test/Serializer.hpp	/^		BigEndian,$/;"	e	enum:Serializer::ByteOrder
+ByteOrder	Serializer.hpp	/^	enum ByteOrder {$/;"	g	class:Serializer
+ByteOrder	test/Serializer.hpp	/^	enum ByteOrder {$/;"	g	class:Serializer
+COL	GameManager.hpp	14;"	d
+ChessColor	PlayerManager.hpp	/^        char ChessColor()$/;"	f	class:Player
+CreateRoom	RoomManager.hpp	/^        int CreateRoom(int id1_, int id2_)$/;"	f	class:RoomMamager
+DestroyRoom	RoomManager.hpp	/^        int DestroyRoom(int id_)$/;"	f	class:RoomMamager
+Game	GameManager.hpp	/^        int Game(int id_, int x_, int y_)$/;"	f	class:GameManager
+Game	GobangClient.cc	/^void Game(buttonrpc *client, int id)$/;"	f
+GameEnd	GameManager.hpp	/^        int GameEnd(int id_)$/;"	f	class:GameManager
+GameManager	GameManager.hpp	/^        GameManager()$/;"	f	class:GameManager
+GameManager	GameManager.hpp	/^class GameManager{$/;"	c
+GamePrepare	PlayerManager.hpp	/^        void GamePrepare(int room_id_, int id1_, int id2_)$/;"	f	class:PlayerManager
+Id	PlayerManager.hpp	/^        int Id()$/;"	f	class:Player
+InsertNewPlayer	PlayerManager.hpp	/^        int InsertNewPlayer(std::string &nick_name_, std::string passwd_)$/;"	f	class:PlayerManager
+IsPlayerLegal	PlayerManager.hpp	/^        bool IsPlayerLegal(int id_, std::string &passwd_)$/;"	f	class:PlayerManager
+IsPlayerRight	Comm.hpp	/^        bool IsPlayerRight(int id_)$/;"	f	class:Room
+IsPosLegal	Comm.hpp	/^        bool IsPosLegal(const int &x_, const int &y_)$/;"	f	class:Room
+LEVEL_NUM	PlayerManager.hpp	9;"	d
+Level	PlayerManager.hpp	/^        int Level()$/;"	f	class:Player
+LittleEndian	Serializer.hpp	/^		LittleEndian$/;"	e	enum:Serializer::ByteOrder
+LittleEndian	test/Serializer.hpp	/^		LittleEndian$/;"	e	enum:Serializer::ByteOrder
+LockMatchPool	PlayerManager.hpp	/^        void LockMatchPool()$/;"	f	class:PlayerManager
+LockPlayers	PlayerManager.hpp	/^        void LockPlayers()$/;"	f	class:PlayerManager
+LockRoom	RoomManager.hpp	/^        void LockRoom()$/;"	f	class:RoomMamager
+Login	GameManager.hpp	/^        bool Login( int id_, std::string passwd_ )$/;"	f	class:GameManager
+LoginEnter	GobangClient.cc	/^static void LoginEnter(int &id, std::string &passwd)$/;"	f	file:
+Logout	GameManager.hpp	/^        bool Logout( int id_ )$/;"	f	class:GameManager
+MATCHING	PlayerManager.hpp	/^            MATCHING,$/;"	e	enum:Status::__anon1
+Match	GameManager.hpp	/^        Room Match(int id_)$/;"	f	class:GameManager
+Match	PlayerManager.hpp	/^        void Match()$/;"	f	class:PlayerManager
+MatchRun	GameManager.hpp	/^        bool MatchRun()$/;"	f	class:GameManager
+MatchService	GameManager.hpp	/^        static void *MatchService(void *arg)$/;"	f	class:GameManager
+Matching	PlayerManager.hpp	/^        void Matching()$/;"	f	class:Player
+Menu	GobangClient.cc	/^static void Menu()$/;"	f	file:
+OFFLINE	PlayerManager.hpp	/^            OFFLINE,$/;"	e	enum:Status::__anon1
+ONLINE	PlayerManager.hpp	/^            ONLINE,$/;"	e	enum:Status::__anon1
+Offline	PlayerManager.hpp	/^        bool Offline(int id_)$/;"	f	class:PlayerManager
+Offline	PlayerManager.hpp	/^        void Offline()$/;"	f	class:Player
+Online	PlayerManager.hpp	/^        bool Online(int id_)$/;"	f	class:PlayerManager
+Online	PlayerManager.hpp	/^        void Online()$/;"	f	class:Player
+PLAYING	PlayerManager.hpp	/^            PLAYING,$/;"	e	enum:Status::__anon1
+PORT	GobangServer.cc	3;"	d	file:
+Passwd	PlayerManager.hpp	/^        std::string Passwd()$/;"	f	class:Player
+Play	Comm.hpp	/^        int Play(int id_, int x_, int y_, char color_)$/;"	f	class:Room
+Play	PlayerManager.hpp	/^        int Play(int id_, int x_, int y_)$/;"	f	class:PlayerManager
+Player	PlayerManager.hpp	/^class Player{$/;"	c
+PlayerManager	PlayerManager.hpp	/^        PlayerManager():assign_id(0),match_pool(LEVEL_NUM),matching_players(0)$/;"	f	class:PlayerManager
+PlayerManager	PlayerManager.hpp	/^class PlayerManager{$/;"	c
+PlayerWait	PlayerManager.hpp	/^        bool PlayerWait(int id_)$/;"	f	class:PlayerManager
+Playing	PlayerManager.hpp	/^        void Playing()$/;"	f	class:Player
+PopMatchingPool	PlayerManager.hpp	/^        bool PopMatchingPool(int id_)$/;"	f	class:PlayerManager
+PopMatchingPoolCore	PlayerManager.hpp	/^        bool PopMatchingPoolCore(int id_)$/;"	f	class:PlayerManager
+PushMatchPool	PlayerManager.hpp	/^        bool PushMatchPool(int id_)$/;"	f	class:PlayerManager
+RED	PlayerManager.hpp	/^            RED='X',$/;"	e	enum:Status::__anon2
+ROOM_NUM	Comm.hpp	4;"	d
+ROW	GameManager.hpp	13;"	d
+RPC_CLIENT	buttonrpc.hpp	/^		RPC_CLIENT,$/;"	e	enum:buttonrpc::rpc_role
+RPC_CLIENT	test/buttonrpc.hpp	/^		RPC_CLIENT,$/;"	e	enum:buttonrpc::rpc_role
+RPC_ERR_FUNCTIION_NOT_BIND	buttonrpc.hpp	/^		RPC_ERR_FUNCTIION_NOT_BIND,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_FUNCTIION_NOT_BIND	test/buttonrpc.hpp	/^		RPC_ERR_FUNCTIION_NOT_BIND,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_RECV_TIMEOUT	buttonrpc.hpp	/^		RPC_ERR_RECV_TIMEOUT$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_RECV_TIMEOUT	test/buttonrpc.hpp	/^		RPC_ERR_RECV_TIMEOUT$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_SUCCESS	buttonrpc.hpp	/^		RPC_ERR_SUCCESS = 0,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_SUCCESS	test/buttonrpc.hpp	/^		RPC_ERR_SUCCESS = 0,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_SERVER	buttonrpc.hpp	/^		RPC_SERVER$/;"	e	enum:buttonrpc::rpc_role
+RPC_SERVER	test/buttonrpc.hpp	/^		RPC_SERVER$/;"	e	enum:buttonrpc::rpc_role
+Register	GameManager.hpp	/^        int Register(std::string nick_name_, std::string passwd_)$/;"	f	class:GameManager
+RegisterEnter	GobangClient.cc	/^void RegisterEnter(std::string &name, std::string &passwd)$/;"	f
+Room	Comm.hpp	/^        Room(int id1_, int id2_):$/;"	f	class:Room
+Room	Comm.hpp	/^class Room{$/;"	c
+Room	PlayerManager.hpp	/^        int Room()$/;"	f	class:Player
+RoomGame	RoomManager.hpp	/^        int RoomGame(int room_id_, int id_, int x_, int y_, char color_)$/;"	f	class:RoomMamager
+RoomMamager	RoomManager.hpp	/^class RoomMamager{$/;"	c
+RoomManager	RoomManager.hpp	/^        RoomManager():assign_id(0)$/;"	f	class:RoomMamager
+Score	PlayerManager.hpp	/^        Score():wins(0), loses(0), ties(0), level(0)$/;"	f	class:Score
+Score	PlayerManager.hpp	/^class Score{$/;"	c
+Serializer	Serializer.hpp	/^	Serializer(StreamBuffer dev, int byteorder=LittleEndian){$/;"	f	class:Serializer
+Serializer	Serializer.hpp	/^    Serializer() { m_byteorder = LittleEndian; }$/;"	f	class:Serializer
+Serializer	Serializer.hpp	/^class Serializer$/;"	c
+Serializer	test/Serializer.hpp	/^	Serializer(StreamBuffer dev, int byteorder=LittleEndian){$/;"	f	class:Serializer
+Serializer	test/Serializer.hpp	/^    Serializer() { m_byteorder = LittleEndian; }$/;"	f	class:Serializer
+Serializer	test/Serializer.hpp	/^class Serializer$/;"	c
+SetChessColor	PlayerManager.hpp	/^        void SetChessColor(char color_)$/;"	f	class:Player
+SetRoom	PlayerManager.hpp	/^        int SetRoom(int room_number_)$/;"	f	class:Player
+StartMatchThread	GameManager.hpp	/^        void StartMatchThread()$/;"	f	class:GameManager
+Stat	PlayerManager.hpp	/^        status_t Stat()$/;"	f	class:Player
+Status	PlayerManager.hpp	/^        Status():status(OFFLINE),chessman('X'),room(-1)$/;"	f	class:Status
+Status	PlayerManager.hpp	/^class Status{$/;"	c
+StreamBuffer	Serializer.hpp	/^	StreamBuffer(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+StreamBuffer	Serializer.hpp	/^	StreamBuffer(const char* in, size_t len){$/;"	f	class:StreamBuffer
+StreamBuffer	Serializer.hpp	/^class StreamBuffer : public vector<char>$/;"	c
+StreamBuffer	test/Serializer.hpp	/^	StreamBuffer(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+StreamBuffer	test/Serializer.hpp	/^	StreamBuffer(const char* in, size_t len){$/;"	f	class:StreamBuffer
+StreamBuffer	test/Serializer.hpp	/^class StreamBuffer : public vector<char>$/;"	c
+SwitchPlayer	Comm.hpp	/^        void SwitchPlayer(int id_)$/;"	f	class:Room
+UnlockMatchPool	PlayerManager.hpp	/^        void UnlockMatchPool()$/;"	f	class:PlayerManager
+UnlockPlayers	PlayerManager.hpp	/^        void UnlockPlayers()$/;"	f	class:PlayerManager
+UnlockRoom	RoomManager.hpp	/^        void UnlockRoom()$/;"	f	class:RoomMamager
+Usage	GobangClient.cc	/^static void Usage(std::string proc_)$/;"	f	file:
+Wait	PlayerManager.hpp	/^        void Wait()$/;"	f	class:Player
+Wakeup	PlayerManager.hpp	/^        void Wakeup()$/;"	f	class:Player
+WhoWin	Comm.hpp	/^        int WhoWin()$/;"	f	class:Room
+WhoWin	RoomManager.hpp	/^        int WhoWin()$/;"	f	class:RoomMamager
+_COMM_H_	Comm.hpp	2;"	d
+_GAMEMANAGER_HPP_	GameManager.hpp	2;"	d
+_PLAYER_MANAGER_	PlayerManager.hpp	2;"	d
+_ROOM_MANAGER_HPP_	RoomManager.hpp	2;"	d
+a	test/comm.hpp	/^        int a[4][4];$/;"	m	class:test
+as_client	buttonrpc.hpp	/^inline void buttonrpc::as_client( std::string ip, int port )$/;"	f	class:buttonrpc
+as_client	test/buttonrpc.hpp	/^inline void buttonrpc::as_client( std::string ip, int port )$/;"	f	class:buttonrpc
+as_server	buttonrpc.hpp	/^inline void buttonrpc::as_server( int port )$/;"	f	class:buttonrpc
+as_server	test/buttonrpc.hpp	/^inline void buttonrpc::as_server( int port )$/;"	f	class:buttonrpc
+assign_id	PlayerManager.hpp	/^        int assign_id;$/;"	m	class:PlayerManager
+assign_id	RoomManager.hpp	/^        int assign_id;$/;"	m	class:RoomMamager
+basic	PlayerManager.hpp	/^            basic(id_, passwd_, nick_name_)$/;"	f	class:Player
+basic	PlayerManager.hpp	/^        Basic basic;$/;"	m	class:Player
+bind	buttonrpc.hpp	/^inline void buttonrpc::bind( std::string name, F func )$/;"	f	class:buttonrpc
+bind	buttonrpc.hpp	/^inline void buttonrpc::bind(std::string name, F func, S* s)$/;"	f	class:buttonrpc
+bind	test/buttonrpc.hpp	/^inline void buttonrpc::bind( std::string name, F func )$/;"	f	class:buttonrpc
+bind	test/buttonrpc.hpp	/^inline void buttonrpc::bind(std::string name, F func, S* s)$/;"	f	class:buttonrpc
+board	Comm.hpp	/^        char board[ROW][COL];$/;"	m	class:Room
+buttonrpc	buttonrpc.hpp	/^class buttonrpc$/;"	c
+buttonrpc	buttonrpc.hpp	/^inline buttonrpc::buttonrpc() : m_context(1){$/;"	f	class:buttonrpc
+buttonrpc	test/buttonrpc.hpp	/^class buttonrpc$/;"	c
+buttonrpc	test/buttonrpc.hpp	/^inline buttonrpc::buttonrpc() : m_context(1){$/;"	f	class:buttonrpc
+byte_orser	Serializer.hpp	/^	void byte_orser(char* in, int len){$/;"	f	class:Serializer
+byte_orser	test/Serializer.hpp	/^	void byte_orser(char* in, int len){$/;"	f	class:Serializer
+call	buttonrpc.hpp	/^	value_t<R> call(std::string name) {$/;"	f	class:buttonrpc
+call	buttonrpc.hpp	/^	value_t<R> call(std::string name, Params... ps) {$/;"	f	class:buttonrpc
+call	test/buttonrpc.hpp	/^	value_t<R> call(std::string name) {$/;"	f	class:buttonrpc
+call	test/buttonrpc.hpp	/^	value_t<R> call(std::string name, Params... ps) {$/;"	f	class:buttonrpc
+call_	buttonrpc.hpp	/^inline Serializer* buttonrpc::call_(std::string name, const char* data, int len)$/;"	f	class:buttonrpc
+call_	test/buttonrpc.hpp	/^inline Serializer* buttonrpc::call_(std::string name, const char* data, int len)$/;"	f	class:buttonrpc
+call_helper	buttonrpc.hpp	/^call_helper(F f, ArgsTuple args) {$/;"	f
+call_helper	test/buttonrpc.hpp	/^call_helper(F f, ArgsTuple args) {$/;"	f
+callproxy	buttonrpc.hpp	/^inline void buttonrpc::callproxy( F fun, Serializer* pr, const char* data, int len )$/;"	f	class:buttonrpc
+callproxy	buttonrpc.hpp	/^inline void buttonrpc::callproxy(F fun, S * s, Serializer * pr, const char * data, int len)$/;"	f	class:buttonrpc
+callproxy	test/buttonrpc.hpp	/^inline void buttonrpc::callproxy( F fun, Serializer* pr, const char* data, int len )$/;"	f	class:buttonrpc
+callproxy	test/buttonrpc.hpp	/^inline void buttonrpc::callproxy(F fun, S * s, Serializer * pr, const char * data, int len)$/;"	f	class:buttonrpc
+callproxy_	buttonrpc.hpp	/^	void callproxy_(R(*func)(Params...), Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+callproxy_	buttonrpc.hpp	/^	void callproxy_(std::function<R(Params... ps)> func, Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+callproxy_	test/buttonrpc.hpp	/^	void callproxy_(R(*func)(Params...), Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+callproxy_	test/buttonrpc.hpp	/^	void callproxy_(std::function<R(Params... ps)> func, Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+chessman	PlayerManager.hpp	/^        }chessman;$/;"	m	class:Status	typeref:enum:Status::__anon2
+clear	Serializer.hpp	/^	void clear(){$/;"	f	class:Serializer
+clear	test/Serializer.hpp	/^	void clear(){$/;"	f	class:Serializer
+code_	buttonrpc.hpp	/^		code_type code_;$/;"	m	class:buttonrpc::value_t
+code_	test/buttonrpc.hpp	/^		code_type code_;$/;"	m	class:buttonrpc::value_t
+code_type	buttonrpc.hpp	/^		typedef uint16_t code_type;$/;"	t	class:buttonrpc::value_t
+code_type	test/buttonrpc.hpp	/^		typedef uint16_t code_type;$/;"	t	class:buttonrpc::value_t
+cond	PlayerManager.hpp	/^        pthread_cond_t cond;$/;"	m	class:Player
+curr_id	Comm.hpp	/^        int curr_id;$/;"	m	class:Room
+current	Serializer.hpp	/^	const char* current(){ return&(*this)[m_curpos]; }$/;"	f	class:StreamBuffer
+current	Serializer.hpp	/^	const char* current(){$/;"	f	class:Serializer
+current	test/Serializer.hpp	/^	const char* current(){ return&(*this)[m_curpos]; }$/;"	f	class:StreamBuffer
+current	test/Serializer.hpp	/^	const char* current(){$/;"	f	class:Serializer
+data	Serializer.hpp	/^	const char* data(){ return &(*this)[0]; }$/;"	f	class:StreamBuffer
+data	Serializer.hpp	/^	const char* data(){$/;"	f	class:Serializer
+data	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+data	test/Serializer.hpp	/^	const char* data(){ return &(*this)[0]; }$/;"	f	class:StreamBuffer
+data	test/Serializer.hpp	/^	const char* data(){$/;"	f	class:Serializer
+data	test/buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+error_code	buttonrpc.hpp	/^		int error_code() { return code_; }$/;"	f	class:buttonrpc::value_t
+error_code	test/buttonrpc.hpp	/^		int error_code() { return code_; }$/;"	f	class:buttonrpc::value_t
+error_msg	buttonrpc.hpp	/^		std::string error_msg() { return msg_; }$/;"	f	class:buttonrpc::value_t
+error_msg	test/buttonrpc.hpp	/^		std::string error_msg() { return msg_; }$/;"	f	class:buttonrpc::value_t
+findc	Serializer.hpp	/^	int findc(char c){$/;"	f	class:StreamBuffer
+findc	test/Serializer.hpp	/^	int findc(char c){$/;"	f	class:StreamBuffer
+fun	test/comm.hpp	/^test fun()$/;"	f
+game_hall	RoomManager.hpp	/^        std::unordered_map<int, Room> game_hall;$/;"	m	class:RoomMamager
+get_length_mem	Serializer.hpp	/^	void get_length_mem(char* p, int len){$/;"	f	class:Serializer
+get_length_mem	test/Serializer.hpp	/^	void get_length_mem(char* p, int len){$/;"	f	class:Serializer
+get_tuple	Serializer.hpp	/^	Tuple get_tuple(std::index_sequence<I...>) {$/;"	f	class:Serializer
+get_tuple	test/Serializer.hpp	/^	Tuple get_tuple(std::index_sequence<I...>) {$/;"	f	class:Serializer
+getv	Serializer.hpp	/^	void getv(Serializer& ds, Tuple& t) {$/;"	f	class:Serializer
+getv	test/Serializer.hpp	/^	void getv(Serializer& ds, Tuple& t) {$/;"	f	class:Serializer
+id	PlayerManager.hpp	/^        int id;$/;"	m	class:Basic
+input	Serializer.hpp	/^	void input( char* in, size_t len){ insert(end(), in, in+len); }$/;"	f	class:StreamBuffer
+input	test/Serializer.hpp	/^	void input( char* in, size_t len){ insert(end(), in, in+len); }$/;"	f	class:StreamBuffer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(T t)$/;"	f	class:Serializer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(const char* in)$/;"	f	class:Serializer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(std::string in)$/;"	f	class:Serializer
+input_type	test/Serializer.hpp	/^inline void Serializer::input_type(T t)$/;"	f	class:Serializer
+input_type	test/Serializer.hpp	/^inline void Serializer::input_type(const char* in)$/;"	f	class:Serializer
+input_type	test/Serializer.hpp	/^inline void Serializer::input_type(std::string in)$/;"	f	class:Serializer
+invoke	buttonrpc.hpp	/^decltype(auto) invoke(Function&& func, Tuple&& t)$/;"	f
+invoke	test/buttonrpc.hpp	/^decltype(auto) invoke(Function&& func, Tuple&& t)$/;"	f
+invoke_impl	buttonrpc.hpp	/^decltype(auto) invoke_impl(Function&& func, Tuple&& t, std::index_sequence<Index...>)$/;"	f
+invoke_impl	test/buttonrpc.hpp	/^decltype(auto) invoke_impl(Function&& func, Tuple&& t, std::index_sequence<Index...>)$/;"	f
+is_end	Comm.hpp	/^        int is_end;$/;"	m	class:Room
+is_eof	Serializer.hpp	/^	bool is_eof(){ return (m_curpos >= size()); }$/;"	f	class:StreamBuffer
+is_eof	test/Serializer.hpp	/^	bool is_eof(){ return (m_curpos >= size()); }$/;"	f	class:StreamBuffer
+level	PlayerManager.hpp	/^        int level;$/;"	m	class:Score
+lock	PlayerManager.hpp	/^        pthread_mutex_t lock;$/;"	m	class:Player
+lock	RoomManager.hpp	/^        pthread_mutex_t lock;$/;"	m	class:RoomMamager
+loses	PlayerManager.hpp	/^        int loses;\/\/-1$/;"	m	class:Score
+m_byteorder	Serializer.hpp	/^	int  m_byteorder;$/;"	m	class:Serializer
+m_byteorder	test/Serializer.hpp	/^	int  m_byteorder;$/;"	m	class:Serializer
+m_context	buttonrpc.hpp	/^	zmq::context_t m_context;$/;"	m	class:buttonrpc
+m_context	test/buttonrpc.hpp	/^	zmq::context_t m_context;$/;"	m	class:buttonrpc
+m_curpos	Serializer.hpp	/^	unsigned int m_curpos;$/;"	m	class:StreamBuffer
+m_curpos	test/Serializer.hpp	/^	unsigned int m_curpos;$/;"	m	class:StreamBuffer
+m_error_code	buttonrpc.hpp	/^	rpc_err_code m_error_code;$/;"	m	class:buttonrpc
+m_error_code	test/buttonrpc.hpp	/^	rpc_err_code m_error_code;$/;"	m	class:buttonrpc
+m_handlers	buttonrpc.hpp	/^	std::map<std::string, std::function<void(Serializer*, const char*, int)>> m_handlers;$/;"	m	class:buttonrpc
+m_handlers	test/buttonrpc.hpp	/^	std::map<std::string, std::function<void(Serializer*, const char*, int)>> m_handlers;$/;"	m	class:buttonrpc
+m_iodevice	Serializer.hpp	/^	StreamBuffer m_iodevice;$/;"	m	class:Serializer
+m_iodevice	test/Serializer.hpp	/^	StreamBuffer m_iodevice;$/;"	m	class:Serializer
+m_role	buttonrpc.hpp	/^	int m_role;$/;"	m	class:buttonrpc
+m_role	test/buttonrpc.hpp	/^	int m_role;$/;"	m	class:buttonrpc
+m_socket	buttonrpc.hpp	/^	zmq::socket_t* m_socket;$/;"	m	class:buttonrpc
+m_socket	test/buttonrpc.hpp	/^	zmq::socket_t* m_socket;$/;"	m	class:buttonrpc
+main	GobangClient.cc	/^int main(int argc, char *argv[])$/;"	f
+main	GobangServer.cc	/^int main()$/;"	f
+main	test/client.cc	/^int main()$/;"	f
+main	test/server.cc	/^int main()$/;"	f
+match_pool	PlayerManager.hpp	/^        std::vector< std::vector<int> > match_pool;$/;"	m	class:PlayerManager
+match_thread	GameManager.hpp	/^        pid_t match_thread;$/;"	m	class:GameManager
+matching_players	PlayerManager.hpp	/^        int matching_players;$/;"	m	class:PlayerManager
+msg_	buttonrpc.hpp	/^		msg_type msg_;$/;"	m	class:buttonrpc::value_t
+msg_	test/buttonrpc.hpp	/^		msg_type msg_;$/;"	m	class:buttonrpc::value_t
+msg_type	buttonrpc.hpp	/^		typedef std::string msg_type;$/;"	t	class:buttonrpc::value_t
+msg_type	test/buttonrpc.hpp	/^		typedef std::string msg_type;$/;"	t	class:buttonrpc::value_t
+net_call	buttonrpc.hpp	/^inline buttonrpc::value_t<R> buttonrpc::net_call(Serializer& ds)$/;"	f	class:buttonrpc
+net_call	test/buttonrpc.hpp	/^inline buttonrpc::value_t<R> buttonrpc::net_call(Serializer& ds)$/;"	f	class:buttonrpc
+nick_name	PlayerManager.hpp	/^        std::string nick_name;$/;"	m	class:Basic
+offset	Serializer.hpp	/^	void offset(int k){ m_curpos += k; }$/;"	f	class:StreamBuffer
+offset	test/Serializer.hpp	/^	void offset(int k){ m_curpos += k; }$/;"	f	class:StreamBuffer
+operator <<	Serializer.hpp	/^	Serializer &operator << (T i){$/;"	f	class:Serializer
+operator <<	buttonrpc.hpp	/^		friend Serializer& operator << (Serializer& out, value_t<T> d) {$/;"	f	class:buttonrpc::value_t
+operator <<	test/Serializer.hpp	/^	Serializer &operator << (T i){$/;"	f	class:Serializer
+operator <<	test/buttonrpc.hpp	/^		friend Serializer& operator << (Serializer& out, value_t<T> d) {$/;"	f	class:buttonrpc::value_t
+operator >>	Serializer.hpp	/^	Serializer &operator >> (T& i){$/;"	f	class:Serializer
+operator >>	buttonrpc.hpp	/^		friend Serializer& operator >> (Serializer& in, value_t<T>& d) {$/;"	f	class:buttonrpc::value_t
+operator >>	test/Serializer.hpp	/^	Serializer &operator >> (T& i){$/;"	f	class:Serializer
+operator >>	test/buttonrpc.hpp	/^		friend Serializer& operator >> (Serializer& in, value_t<T>& d) {$/;"	f	class:buttonrpc::value_t
+output_type	Serializer.hpp	/^inline void Serializer::output_type(T& t)$/;"	f	class:Serializer
+output_type	Serializer.hpp	/^inline void Serializer::output_type(std::string& in)$/;"	f	class:Serializer
+output_type	test/Serializer.hpp	/^inline void Serializer::output_type(T& t)$/;"	f	class:Serializer
+output_type	test/Serializer.hpp	/^inline void Serializer::output_type(std::string& in)$/;"	f	class:Serializer
+package_params	buttonrpc.hpp	/^void package_params(Serializer& ds, const std::tuple<Args...>& t)$/;"	f
+package_params	test/buttonrpc.hpp	/^void package_params(Serializer& ds, const std::tuple<Args...>& t)$/;"	f
+package_params_impl	buttonrpc.hpp	/^void package_params_impl(Serializer& ds, const Tuple& t, std::index_sequence<Is...>)$/;"	f
+package_params_impl	test/buttonrpc.hpp	/^void package_params_impl(Serializer& ds, const Tuple& t, std::index_sequence<Is...>)$/;"	f
+passwd	PlayerManager.hpp	/^        std::string passwd;$/;"	m	class:Basic
+player_one	Comm.hpp	/^        int player_one;$/;"	m	class:Room
+player_two	Comm.hpp	/^        int player_two;$/;"	m	class:Room
+players	PlayerManager.hpp	/^        std::unordered_map<int,Player> players;$/;"	m	class:PlayerManager
+players_lock	PlayerManager.hpp	/^        pthread_mutex_t players_lock;$/;"	m	class:PlayerManager
+pm	GameManager.hpp	/^        PlayerManager pm;$/;"	m	class:GameManager
+pool_lock	PlayerManager.hpp	/^        pthread_mutex_t pool_lock;$/;"	m	class:PlayerManager
+pr	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+pr	test/buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+recv	buttonrpc.hpp	/^inline void buttonrpc::recv( zmq::message_t& data )$/;"	f	class:buttonrpc
+recv	test/buttonrpc.hpp	/^inline void buttonrpc::recv( zmq::message_t& data )$/;"	f	class:buttonrpc
+reset	Serializer.hpp	/^	void reset(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+reset	Serializer.hpp	/^	void reset(){$/;"	f	class:Serializer
+reset	test/Serializer.hpp	/^	void reset(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+reset	test/Serializer.hpp	/^	void reset(){$/;"	f	class:Serializer
+rm	PlayerManager.hpp	/^        RoomManager rm;$/;"	m	class:PlayerManager
+room	PlayerManager.hpp	/^        int room;$/;"	m	class:Status
+rpc_err_code	buttonrpc.hpp	/^	enum rpc_err_code {$/;"	g	class:buttonrpc
+rpc_err_code	test/buttonrpc.hpp	/^	enum rpc_err_code {$/;"	g	class:buttonrpc
+rpc_role	buttonrpc.hpp	/^	enum rpc_role{$/;"	g	class:buttonrpc
+rpc_role	test/buttonrpc.hpp	/^	enum rpc_role{$/;"	g	class:buttonrpc
+run	buttonrpc.hpp	/^inline void buttonrpc::run()$/;"	f	class:buttonrpc
+run	test/buttonrpc.hpp	/^inline void buttonrpc::run()$/;"	f	class:buttonrpc
+s	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+s	test/buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+score	PlayerManager.hpp	/^        Score score;$/;"	m	class:Player
+send	buttonrpc.hpp	/^inline void buttonrpc::send( zmq::message_t& data )$/;"	f	class:buttonrpc
+send	test/buttonrpc.hpp	/^inline void buttonrpc::send( zmq::message_t& data )$/;"	f	class:buttonrpc
+set_code	buttonrpc.hpp	/^		void set_code(code_type code) { code_ = code; }$/;"	f	class:buttonrpc::value_t
+set_code	test/buttonrpc.hpp	/^		void set_code(code_type code) { code_ = code; }$/;"	f	class:buttonrpc::value_t
+set_msg	buttonrpc.hpp	/^		void set_msg(msg_type msg) { msg_ = msg; }$/;"	f	class:buttonrpc::value_t
+set_msg	test/buttonrpc.hpp	/^		void set_msg(msg_type msg) { msg_ = msg; }$/;"	f	class:buttonrpc::value_t
+set_timeout	buttonrpc.hpp	/^inline void buttonrpc::set_timeout(uint32_t ms)$/;"	f	class:buttonrpc
+set_timeout	test/buttonrpc.hpp	/^inline void buttonrpc::set_timeout(uint32_t ms)$/;"	f	class:buttonrpc
+set_val	buttonrpc.hpp	/^		void set_val(const type& val) { val_ = val; }$/;"	f	class:buttonrpc::value_t
+set_val	test/buttonrpc.hpp	/^		void set_val(const type& val) { val_ = val; }$/;"	f	class:buttonrpc::value_t
+show	test/comm.hpp	/^        void show()$/;"	f	class:test
+size	Serializer.hpp	/^	int size(){$/;"	f	class:Serializer
+size	test/Serializer.hpp	/^	int size(){$/;"	f	class:Serializer
+skip_raw_date	Serializer.hpp	/^	void skip_raw_date(int k){$/;"	f	class:Serializer
+skip_raw_date	test/Serializer.hpp	/^	void skip_raw_date(int k){$/;"	f	class:Serializer
+stat	PlayerManager.hpp	/^        }stat;$/;"	m	class:Status	typeref:enum:Status::__anon1
+status	PlayerManager.hpp	/^        Status status;$/;"	m	class:Player
+test	test/comm.hpp	/^        test()$/;"	f	class:test
+test	test/comm.hpp	/^class test{$/;"	c
+ties	PlayerManager.hpp	/^        int ties; \/\/ 0$/;"	m	class:Score
+type	buttonrpc.hpp	/^		typedef typename type_xx<T>::type type;$/;"	t	class:buttonrpc::value_t
+type	buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	t	struct:type_xx
+type	buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	t	struct:type_xx
+type	test/buttonrpc.hpp	/^		typedef typename type_xx<T>::type type;$/;"	t	class:buttonrpc::value_t
+type	test/buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	t	struct:type_xx
+type	test/buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	t	struct:type_xx
+type_xx	buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	s
+type_xx	buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	s
+type_xx	test/buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	s
+type_xx	test/buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	s
+val	buttonrpc.hpp	/^		type val() { return val_; }$/;"	f	class:buttonrpc::value_t
+val	test/buttonrpc.hpp	/^		type val() { return val_; }$/;"	f	class:buttonrpc::value_t
+val_	buttonrpc.hpp	/^		type val_;$/;"	m	class:buttonrpc::value_t
+val_	test/buttonrpc.hpp	/^		type val_;$/;"	m	class:buttonrpc::value_t
+valid	buttonrpc.hpp	/^		bool valid() { return (code_ == 0 ? true : false); }$/;"	f	class:buttonrpc::value_t
+valid	test/buttonrpc.hpp	/^		bool valid() { return (code_ == 0 ? true : false); }$/;"	f	class:buttonrpc::value_t
+value_t	buttonrpc.hpp	/^		value_t() { code_ = 0; msg_.clear(); }$/;"	f	class:buttonrpc::value_t
+value_t	buttonrpc.hpp	/^	class value_t {$/;"	c	class:buttonrpc
+value_t	test/buttonrpc.hpp	/^		value_t() { code_ = 0; msg_.clear(); }$/;"	f	class:buttonrpc::value_t
+value_t	test/buttonrpc.hpp	/^	class value_t {$/;"	c	class:buttonrpc
+who_win	Comm.hpp	/^        int who_win;$/;"	m	class:Room
+wins	PlayerManager.hpp	/^        int wins; \/\/ 1$/;"	m	class:Score
+write_raw_data	Serializer.hpp	/^	void write_raw_data(char* in, int len){$/;"	f	class:Serializer
+write_raw_data	test/Serializer.hpp	/^	void write_raw_data(char* in, int len){$/;"	f	class:Serializer
+~GameManager	GameManager.hpp	/^        ~GameManager()$/;"	f	class:GameManager
+~Player	PlayerManager.hpp	/^        ~Player()$/;"	f	class:Player
+~PlayerManager	PlayerManager.hpp	/^        ~PlayerManager()$/;"	f	class:PlayerManager
+~Room	Comm.hpp	/^        ~Room()$/;"	f	class:Room
+~RoomManager	RoomManager.hpp	/^        ~RoomManager()$/;"	f	class:RoomMamager
+~Serializer	Serializer.hpp	/^    ~Serializer(){ }$/;"	f	class:Serializer
+~Serializer	test/Serializer.hpp	/^    ~Serializer(){ }$/;"	f	class:Serializer
+~StreamBuffer	Serializer.hpp	/^    ~StreamBuffer(){ }$/;"	f	class:StreamBuffer
+~StreamBuffer	test/Serializer.hpp	/^    ~StreamBuffer(){ }$/;"	f	class:StreamBuffer
+~buttonrpc	buttonrpc.hpp	/^inline buttonrpc::~buttonrpc(){$/;"	f	class:buttonrpc
+~buttonrpc	test/buttonrpc.hpp	/^inline buttonrpc::~buttonrpc(){$/;"	f	class:buttonrpc
+~test	test/comm.hpp	/^        ~test()$/;"	f	class:test

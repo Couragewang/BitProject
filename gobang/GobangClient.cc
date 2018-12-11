@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "buttonrpc.hpp"
-#include "GameManager.hpp"
+#include "Comm.hpp"
 
 static void Usage(std::string proc_)
 {
