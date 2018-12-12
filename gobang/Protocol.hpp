@@ -2,9 +2,14 @@
 #define _COMM_H_
 
 #include <iostream>
+#include <string.h>
 
+#define ROW 5
+#define COL 5
 #define RED 'X'
 #define BLACK 'O'
+
+#define WAIT_TIME 30
 
 class Room{
     private:
@@ -35,8 +40,10 @@ class Room{
             }
         }
     public:
+        Room()
+        {}
         Room(int id1_, int id2_):
-            player_one(id1_), player_two(id2_), curr_id(id1_), who_win(-1),status(FULL)
+            player_one(id1_), player_two(id2_), curr_id(id1_),status(FULL)
         {
             memset(board, ' ', sizeof(char)*ROW*COL);
         }
@@ -46,7 +53,7 @@ class Room{
                 return -1;
             }
             int result = 0;
-            if( x_ >= 1 && x <= 5 && y_ >= 1 && y_ <= 5){
+            if( x_ >= 1 && x_ <= 5 && y_ >= 1 && y_ <= 5){
                 if(IsPosLegal(x_, y_)){
                     board[x_ - 1][y_ - 1] = color_;
                 }
@@ -117,10 +124,13 @@ class Room{
         {
             return status == DESTROY;
         }
+        void ShowBoard()
+        {
+            std::cout << "Debug: Show Board" << std::endl;
+        }
         ~Room()
         {
         }
 };
-
 #endif
 

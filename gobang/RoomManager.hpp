@@ -4,11 +4,11 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include "Comm.hpp"
+#include "Protocol.hpp"
 
 #define ROOM_NUM 100
 
-class RoomMamager{
+class RoomManager{
     private:
         std::unordered_map<int, Room> game_hall;
         int assign_id;

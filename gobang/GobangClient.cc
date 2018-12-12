@@ -1,16 +1,31 @@
 #include <iostream>
 #include <string>
+#include <pthread.h>
+#include <unistd.h>
+#include <cstdio>
 #include "buttonrpc.hpp"
-#include "Comm.hpp"
+#include "Protocol.hpp"
 
 static void Usage(std::string proc_)
 {
     std::cout <<"Usage: "<< proc_ << " ip port" << endl;
 }
+static void *Count(void *arg)
+{
+    int time = 0;
+    while(time < WAIT_TIME){
+        std::cout << "Matching... [ " << time << "/" << WAIT_TIME << " ]S\r";
+        fflush(stdout);
+        sleep(1);
+        time++;
+    }
+    std::cout << std::endl;
+}
 static void Menu1()
 {
     std::cout << "###########################################" << std::endl;
     std::cout << "##  1. register               2. login   ##" << std::endl;
+    std::cout << "##                            3. exit    ##" << std::endl;
     std::cout << "###########################################" << std::endl;
     std::cout << "Please Select# ";
 }
@@ -47,13 +62,13 @@ void Play(buttonrpc &client, int &id, char &chess_color)
 {
     int x,y;
     Room room_;
-    volatile is_quit = false;
+    volatile bool is_quit = false;
     while(!is_quit){
         room_.ShowBoard();
         std::cout << "Please Enter Your Pos<x,y>: ";
         std::cin >> x >> y;
 
-        switch(client->call<int>("Game",id, x, y)){
+        switch(client.call<int>("Game",id, x, y).val()){
             case -1:
                 std::cout << "It is not your turn yet!" << std::endl;
                 break;
@@ -65,8 +80,8 @@ void Play(buttonrpc &client, int &id, char &chess_color)
                 break;
             case 0:
                 {
-                    room_ = client.call<Room>("GetRoom", id);
-                    char result = room_.judge();
+                    room_ = client.call<Room>("GetRoom", id).val();
+                    char result = room_.Judge();
                     if(result != 'N'){
                         if(result == 'E'){
                             std::cout << "Tie Over!" << std::endl;
@@ -85,7 +100,6 @@ void Play(buttonrpc &client, int &id, char &chess_color)
             default:
                 break;
         }
-
     }
 }
 void Game(buttonrpc &client, int &id)
@@ -95,21 +109,30 @@ void Game(buttonrpc &client, int &id)
     volatile bool end = false;
     while(!end){
         Menu2();
-        std::cout >> select;
+        std::cin >> select;
         switch(select){
             case 1:
                 {
+                    std::cout << "Match Begin!" << std::endl;
+                    pthread_t tid;
+                    pthread_create(&tid, NULL, Count, NULL);
                     if(client.call<bool>("Match", id).val()){
-                        char chess_color = client.call<char>("PlayerChessColor", id);
+                        pthread_cancel(tid);
+                        pthread_join(tid, NULL);
+                        std::cout << "Match Success!" << std::endl;
+                        char chess_color = client.call<char>("PlayerChessColor", id).val();
+                        std::cout << "Your Chess Color is : " << chess_color << std::endl;
                         Play(client, id, chess_color);
                     }else{
+                        pthread_join(tid, NULL);
                         std::cout << "Match Failed!" << std::endl;
                     }
                 }
                 break;
             case 2:
                 client.call<bool>("Logout", id).val();
-                break;
+                std::cout << "Logout Success" << std::endl;
+                return;
             default:
                 break;
         }
@@ -134,7 +157,7 @@ int main(int argc, char *argv[])
             case 1:
                 RegisterEnter(name, passwd);
                 id = client.call<int>("Register", name, passwd).val();
-                std::cout << "register success, please login!" << std::endl;
+                std::cout << "Register Success, Please Login! Your ID is : " << id << std::endl;
                 break;
             case 2:
                 {
@@ -147,9 +170,10 @@ int main(int argc, char *argv[])
                     }
                 }
                 break;
+            case 3:
+                exit(0);
             default:
                 Usage(argv[0]);
-                exit(1);
                 break;
         }
     }

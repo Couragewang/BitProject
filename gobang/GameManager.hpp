@@ -2,21 +2,17 @@
 #define _GAMEMANAGER_HPP_
 
 #include <iostream>
-#include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <pthread.h>
 #include "buttonrpc.hpp"
 #include "PlayerManager.hpp"
-#include "Comm.hpp"
-
-#define ROW 5
-#define COL 5
+#include "Protocol.hpp"
 
 class GameManager{
     private:
         PlayerManager *pm;
-        pid_t match_thread;
+        pthread_t match_thread;
     public:
         GameManager(PlayerManager *pm_):pm(pm_)
         {}
