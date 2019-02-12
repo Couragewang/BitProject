@@ -1,0 +1,114 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BigEndian	Serializer.hpp	/^		BigEndian,$/;"	e	enum:Serializer::ByteOrder
+ByteOrder	Serializer.hpp	/^	enum ByteOrder {$/;"	g	class:Serializer
+LittleEndian	Serializer.hpp	/^		LittleEndian$/;"	e	enum:Serializer::ByteOrder
+RPC_CLIENT	buttonrpc.hpp	/^		RPC_CLIENT,$/;"	e	enum:buttonrpc::rpc_role
+RPC_ERR_FUNCTIION_NOT_BIND	buttonrpc.hpp	/^		RPC_ERR_FUNCTIION_NOT_BIND,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_RECV_TIMEOUT	buttonrpc.hpp	/^		RPC_ERR_RECV_TIMEOUT$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_ERR_SUCCESS	buttonrpc.hpp	/^		RPC_ERR_SUCCESS = 0,$/;"	e	enum:buttonrpc::rpc_err_code
+RPC_SERVER	buttonrpc.hpp	/^		RPC_SERVER$/;"	e	enum:buttonrpc::rpc_role
+Serializer	Serializer.hpp	/^	Serializer(StreamBuffer dev, int byteorder=LittleEndian){$/;"	f	class:Serializer
+Serializer	Serializer.hpp	/^    Serializer() { m_byteorder = LittleEndian; }$/;"	f	class:Serializer
+Serializer	Serializer.hpp	/^class Serializer$/;"	c
+StreamBuffer	Serializer.hpp	/^	StreamBuffer(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+StreamBuffer	Serializer.hpp	/^	StreamBuffer(const char* in, size_t len){$/;"	f	class:StreamBuffer
+StreamBuffer	Serializer.hpp	/^class StreamBuffer : public vector<char>$/;"	c
+a	comm.hpp	/^        int a[4][4];$/;"	m	class:test
+as_client	buttonrpc.hpp	/^inline void buttonrpc::as_client( std::string ip, int port )$/;"	f	class:buttonrpc
+as_server	buttonrpc.hpp	/^inline void buttonrpc::as_server( int port )$/;"	f	class:buttonrpc
+bind	buttonrpc.hpp	/^inline void buttonrpc::bind( std::string name, F func )$/;"	f	class:buttonrpc
+bind	buttonrpc.hpp	/^inline void buttonrpc::bind(std::string name, F func, S* s)$/;"	f	class:buttonrpc
+buttonrpc	buttonrpc.hpp	/^class buttonrpc$/;"	c
+buttonrpc	buttonrpc.hpp	/^inline buttonrpc::buttonrpc() : m_context(1){$/;"	f	class:buttonrpc
+byte_orser	Serializer.hpp	/^	void byte_orser(char* in, int len){$/;"	f	class:Serializer
+call	buttonrpc.hpp	/^	value_t<R> call(std::string name) {$/;"	f	class:buttonrpc
+call	buttonrpc.hpp	/^	value_t<R> call(std::string name, Params... ps) {$/;"	f	class:buttonrpc
+call_	buttonrpc.hpp	/^inline Serializer* buttonrpc::call_(std::string name, const char* data, int len)$/;"	f	class:buttonrpc
+call_helper	buttonrpc.hpp	/^call_helper(F f, ArgsTuple args) {$/;"	f
+callproxy	buttonrpc.hpp	/^inline void buttonrpc::callproxy( F fun, Serializer* pr, const char* data, int len )$/;"	f	class:buttonrpc
+callproxy	buttonrpc.hpp	/^inline void buttonrpc::callproxy(F fun, S * s, Serializer * pr, const char * data, int len)$/;"	f	class:buttonrpc
+callproxy_	buttonrpc.hpp	/^	void callproxy_(R(*func)(Params...), Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+callproxy_	buttonrpc.hpp	/^	void callproxy_(std::function<R(Params... ps)> func, Serializer* pr, const char* data, int len) {$/;"	f	class:buttonrpc
+clear	Serializer.hpp	/^	void clear(){$/;"	f	class:Serializer
+code_	buttonrpc.hpp	/^		code_type code_;$/;"	m	class:buttonrpc::value_t
+code_type	buttonrpc.hpp	/^		typedef uint16_t code_type;$/;"	t	class:buttonrpc::value_t
+current	Serializer.hpp	/^	const char* current(){ return&(*this)[m_curpos]; }$/;"	f	class:StreamBuffer
+current	Serializer.hpp	/^	const char* current(){$/;"	f	class:Serializer
+data	Serializer.hpp	/^	const char* data(){ return &(*this)[0]; }$/;"	f	class:StreamBuffer
+data	Serializer.hpp	/^	const char* data(){$/;"	f	class:Serializer
+data	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+error_code	buttonrpc.hpp	/^		int error_code() { return code_; }$/;"	f	class:buttonrpc::value_t
+error_msg	buttonrpc.hpp	/^		std::string error_msg() { return msg_; }$/;"	f	class:buttonrpc::value_t
+findc	Serializer.hpp	/^	int findc(char c){$/;"	f	class:StreamBuffer
+fun	comm.hpp	/^test fun()$/;"	f
+funname	buttonrpc.hpp	/^    std::string funname;$/;"	m	struct:__anon1
+get_length_mem	Serializer.hpp	/^	void get_length_mem(char* p, int len){$/;"	f	class:Serializer
+get_tuple	Serializer.hpp	/^	Tuple get_tuple(std::index_sequence<I...>) {$/;"	f	class:Serializer
+getv	Serializer.hpp	/^	void getv(Serializer& ds, Tuple& t) {$/;"	f	class:Serializer
+input	Serializer.hpp	/^	void input( char* in, size_t len){ insert(end(), in, in+len); }$/;"	f	class:StreamBuffer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(T t)$/;"	f	class:Serializer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(const char* in)$/;"	f	class:Serializer
+input_type	Serializer.hpp	/^inline void Serializer::input_type(std::string in)$/;"	f	class:Serializer
+invoke	buttonrpc.hpp	/^decltype(auto) invoke(Function&& func, Tuple&& t)$/;"	f
+invoke_impl	buttonrpc.hpp	/^decltype(auto) invoke_impl(Function&& func, Tuple&& t, std::index_sequence<Index...>)$/;"	f
+is_eof	Serializer.hpp	/^	bool is_eof(){ return (m_curpos >= size()); }$/;"	f	class:StreamBuffer
+m_byteorder	Serializer.hpp	/^	int  m_byteorder;$/;"	m	class:Serializer
+m_context	buttonrpc.hpp	/^	zmq::context_t m_context;$/;"	m	class:buttonrpc
+m_curpos	Serializer.hpp	/^	unsigned int m_curpos;$/;"	m	class:StreamBuffer
+m_error_code	buttonrpc.hpp	/^	rpc_err_code m_error_code;$/;"	m	class:buttonrpc
+m_handlers	buttonrpc.hpp	/^	std::map<std::string, std::function<void(Serializer*, const char*, int)>> m_handlers;$/;"	m	class:buttonrpc
+m_iodevice	Serializer.hpp	/^	StreamBuffer m_iodevice;$/;"	m	class:Serializer
+m_role	buttonrpc.hpp	/^	int m_role;$/;"	m	class:buttonrpc
+m_socket	buttonrpc.hpp	/^	zmq::socket_t* m_socket;$/;"	m	class:buttonrpc
+main	client.cc	/^int main()$/;"	f
+main	server.cc	/^int main()$/;"	f
+msg_	buttonrpc.hpp	/^		msg_type msg_;$/;"	m	class:buttonrpc::value_t
+msg_type	buttonrpc.hpp	/^		typedef std::string msg_type;$/;"	t	class:buttonrpc::value_t
+net_call	buttonrpc.hpp	/^inline buttonrpc::value_t<R> buttonrpc::net_call(Serializer& ds)$/;"	f	class:buttonrpc
+offset	Serializer.hpp	/^	void offset(int k){ m_curpos += k; }$/;"	f	class:StreamBuffer
+operator <<	Serializer.hpp	/^	Serializer &operator << (T i){$/;"	f	class:Serializer
+operator <<	buttonrpc.hpp	/^		friend Serializer& operator << (Serializer& out, value_t<T> d) {$/;"	f	class:buttonrpc::value_t
+operator >>	Serializer.hpp	/^	Serializer &operator >> (T& i){$/;"	f	class:Serializer
+operator >>	buttonrpc.hpp	/^		friend Serializer& operator >> (Serializer& in, value_t<T>& d) {$/;"	f	class:buttonrpc::value_t
+output_type	Serializer.hpp	/^inline void Serializer::output_type(T& t)$/;"	f	class:Serializer
+output_type	Serializer.hpp	/^inline void Serializer::output_type(std::string& in)$/;"	f	class:Serializer
+package_params	buttonrpc.hpp	/^void package_params(Serializer& ds, const std::tuple<Args...>& t)$/;"	f
+package_params_impl	buttonrpc.hpp	/^void package_params_impl(Serializer& ds, const Tuple& t, std::index_sequence<Is...>)$/;"	f
+pr	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+recv	buttonrpc.hpp	/^inline void buttonrpc::recv( zmq::message_t& data )$/;"	f	class:buttonrpc
+reset	Serializer.hpp	/^	void reset(){ m_curpos = 0; }$/;"	f	class:StreamBuffer
+reset	Serializer.hpp	/^	void reset(){$/;"	f	class:Serializer
+rpc_err_code	buttonrpc.hpp	/^	enum rpc_err_code {$/;"	g	class:buttonrpc
+rpc_role	buttonrpc.hpp	/^	enum rpc_role{$/;"	g	class:buttonrpc
+run	buttonrpc.hpp	/^inline void buttonrpc::run()$/;"	f	class:buttonrpc
+s	buttonrpc.hpp	/^	void callproxy_(R(C::* func)(Params...), S* s, Serializer* pr, const char* data, int len) {$/;"	m	class:buttonrpc
+send	buttonrpc.hpp	/^inline void buttonrpc::send( zmq::message_t& data )$/;"	f	class:buttonrpc
+set_code	buttonrpc.hpp	/^		void set_code(code_type code) { code_ = code; }$/;"	f	class:buttonrpc::value_t
+set_msg	buttonrpc.hpp	/^		void set_msg(msg_type msg) { msg_ = msg; }$/;"	f	class:buttonrpc::value_t
+set_timeout	buttonrpc.hpp	/^inline void buttonrpc::set_timeout(uint32_t ms)$/;"	f	class:buttonrpc
+set_val	buttonrpc.hpp	/^		void set_val(const type& val) { val_ = val; }$/;"	f	class:buttonrpc::value_t
+show	comm.hpp	/^        void show()$/;"	f	class:test
+size	Serializer.hpp	/^	int size(){$/;"	f	class:Serializer
+skip_raw_date	Serializer.hpp	/^	void skip_raw_date(int k){$/;"	f	class:Serializer
+test	comm.hpp	/^        test()$/;"	f	class:test
+test	comm.hpp	/^class test{$/;"	c
+type	buttonrpc.hpp	/^		typedef typename type_xx<T>::type type;$/;"	t	class:buttonrpc::value_t
+type	buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	t	struct:type_xx
+type	buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	t	struct:type_xx
+type_xx	buttonrpc.hpp	/^struct type_xx<void>{ typedef int8_t type; };$/;"	s
+type_xx	buttonrpc.hpp	/^struct type_xx{	typedef T type; };$/;"	s
+val	buttonrpc.hpp	/^		type val() { return val_; }$/;"	f	class:buttonrpc::value_t
+val_	buttonrpc.hpp	/^		type val_;$/;"	m	class:buttonrpc::value_t
+valid	buttonrpc.hpp	/^		bool valid() { return (code_ == 0 ? true : false); }$/;"	f	class:buttonrpc::value_t
+value_t	buttonrpc.hpp	/^		value_t() { code_ = 0; msg_.clear(); }$/;"	f	class:buttonrpc::value_t
+value_t	buttonrpc.hpp	/^	class value_t {$/;"	c	class:buttonrpc
+write_raw_data	Serializer.hpp	/^	void write_raw_data(char* in, int len){$/;"	f	class:Serializer
+~Serializer	Serializer.hpp	/^    ~Serializer(){ }$/;"	f	class:Serializer
+~StreamBuffer	Serializer.hpp	/^    ~StreamBuffer(){ }$/;"	f	class:StreamBuffer
+~buttonrpc	buttonrpc.hpp	/^inline buttonrpc::~buttonrpc(){$/;"	f	class:buttonrpc
+~test	comm.hpp	/^        ~test()$/;"	f	class:test

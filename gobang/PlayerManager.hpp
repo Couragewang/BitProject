@@ -120,6 +120,7 @@ class Player{
         }
         void Wakeup()
         {
+            LOG(INFO, "Match Success, WakeUp Thread!");
             pthread_cond_signal(&cond);
         }
         ~Player()
@@ -138,6 +139,7 @@ class PlayerManager{
         std::vector< std::vector<int> > match_pool;
         int matching_players;
         pthread_mutex_t pool_lock;
+        pthread_cond_t pool_cond;
 
         RoomManager rm;
     private:
@@ -156,6 +158,14 @@ class PlayerManager{
         void UnlockPlayers()
         {
             pthread_mutex_unlock(&players_lock);
+        }
+        void MathServiceWait()
+        {
+            pthread_cond_wait(&pool_cond, &pool_lock);
+        }
+        void MathServiceWakeup()
+        {
+            pthread_cond_signal(&pool_cond);
         }
         bool PopMatchingPoolCore(int id_)
         {
@@ -212,6 +222,8 @@ class PlayerManager{
                 ret = true;
             }
 
+            MathServiceWakeup();
+            LOG(INFO, "Math Service Wakeup!");
             UnlockMatchPool();
 
             return ret;
@@ -241,6 +253,7 @@ class PlayerManager{
         }
         void GamePrepare(int room_id_, int id1_, int id2_)
         {
+            LOG(INFO, "Match Success!");
             PopMatchingPoolCore(id1_);
             PopMatchingPoolCore(id2_);
 
@@ -289,10 +302,12 @@ class PlayerManager{
         {
             bool ret = false;
             if(PushMatchPool(id_)){
+                LOG(INFO, "Push Player In Match Pool!");
                 LOG(INFO, "Player Match Begin!");
                 ret = PlayerWait(id_);
                 LOG(INFO, "Player Match End!");
-                PopMatchingPool(id_);
+                //PopMatchingPool(id_);
+                //LOG(INFO, "Pop Player out Match Pool!");
             }
             return ret;
         }
@@ -323,8 +338,13 @@ class PlayerManager{
         {
             bool ret = false;
             std::vector<int> id_list_;
-
+            LOG(INFO, "Match Thread Running...");
             LockMatchPool();
+            while(matching_players < 2){
+                LOG(INFO, "Match Service Wait...");
+                MathServiceWait();
+                LOG(INFO, "Match Service Waitup...");
+            }
             for(auto i = LEVEL_NUM-1; i >= 0; i--){
                 auto &v = match_pool[i];
                 if(v.empty()){
