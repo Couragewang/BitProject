@@ -153,20 +153,3 @@ class Response{
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

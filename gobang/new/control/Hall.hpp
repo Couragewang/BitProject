@@ -12,6 +12,7 @@
 
 #define STEP 1024
 #define SERVER_PORT 8888
+#define LEVEL_NUM 1000
 
 class Hall{
 private:
@@ -131,6 +132,41 @@ private:
 
             return ret;
         }
+        void MathServiceWait()
+        {
+            pthread_cond_wait(&pool_cond, &pool_lock);
+        }
+        void MatchService()
+        {
+            bool ret = false;
+            std::vector<int> id_list_;
+            LockMatchPool();
+            while(matching_players < 2){
+                MathServiceWait();
+            }
+            for(auto i = LEVEL_NUM-1; i >= 0; i--){
+                auto &v = match_pool[i];
+                if(v.empty()){
+                    continue;
+                }
+                int size_ = v.size();
+                if(size_ & 1){
+                    id_list_.push_back(v[size_-1]);
+                    size_--;
+                }
+                for(auto j = 0; j < size_; j+=2){
+                    int room_id_ = rm.CreateRoom(v[j], v[j+1]);
+                    GamePrepare(room_id_, v[j], v[j+1]);
+                }
+            }
+            int size_ = id_list_.size();
+            size_ &= (~1);
+            for (auto i=0; i < size_; i+=2) {
+                int room_id_ = rm.CreateRoom(id_list_[i], id_list_[i+1]);
+                GamePrepare(room_id_, id_list_[i], id_list_[i+1]);
+            }
+            UnlockMatchPool();
+        }
         ~Hall()
         {
             pthread_mutex_destroy(&players_lock);
@@ -246,6 +282,11 @@ class Server{
                     break;
             }
             close(sock);
+        }
+        static void HandlerMatch(int no_arg)
+        {
+            Hall *p = Singleton::GetInstance();
+
         }
         void Start()
         {

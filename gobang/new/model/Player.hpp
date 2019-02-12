@@ -109,6 +109,10 @@ class Player{
             timeout.tv_sec += WAIT_TIME;
             return pthread_cond_timedwait(&cond, &lock, &timeout);
         }
+        void Wakeup()
+        {
+            pthread_cond_signal(&cond);
+        }
         int Room()
         {
             return status.room_id;
