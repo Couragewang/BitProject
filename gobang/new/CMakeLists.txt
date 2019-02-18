@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++11")
 find_package(Boost COMPONENTS system REQUIRED)
 include_directories(
         "./msgpack/include"
+        "./src"
 )
 
 add_executable(rest_rpc main.cpp)

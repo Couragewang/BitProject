@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <string.h>
-#include "Protocol.hpp"
 
 #define BOARD_NUM 25
 

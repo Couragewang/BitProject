@@ -1,0 +1,3 @@
+/home/hb/BitProject/gobang/new/build/CMakeFiles/rebuild_cache.dir
+/home/hb/BitProject/gobang/new/build/CMakeFiles/edit_cache.dir
+/home/hb/BitProject/gobang/new/build/CMakeFiles/rest_rpc.dir

@@ -1,0 +1,1 @@
+/opt/rh/devtoolset-6/root/usr/bin/c++   -pthread -std=c++11   CMakeFiles/rest_rpc.dir/main.cpp.o  -o rest_rpc /usr/lib64/libboost_system-mt.so 

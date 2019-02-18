@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <cstdio>
-#include "Protocol.hpp"
 
 #define WAIT_TIME 30
 class Client{
