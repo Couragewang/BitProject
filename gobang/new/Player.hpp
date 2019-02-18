@@ -1,5 +1,5 @@
-#ifndef _PLAYER_MANAGER_
-#define _PLAYER_MANAGER_
+#ifndef _PLAYER_HPP_
+#define _PLAYER_HPP_
 
 #include <iostream>
 #include <vector>
@@ -8,9 +8,10 @@
 #include <algorithm>
 #include <time.h>
 
-#define LEVEL_NUM 1000
-#define RED 'r'
-#define BLACK 'b'
+#define WHITE 'X' //master
+#define BLACK 'O'
+#define NO    '-' //新创建，没有棋子
+#define WAIT_TIME 30
 
 typedef enum{
     OFFLINE,
@@ -19,114 +20,101 @@ typedef enum{
     PLAYING,
 }status_t;
 
-class Basic{
-    public:
+class Player{
+    private:
+        //基本信息
         int id;
         std::string passwd;
         std::string nick_name;
-    public:
-        Basic(int &id_, std::string &passwd_, std::string &nick_name_):id(id_),passwd(passwd_),nick_name(nick_name_)
-        {}
-};
-class Score{
-    public:
+        //游戏信息
         int wins; // 1
         int loses;//-1
         int ties; // 0
-        int level;
-    public:
-        Score():wins(0), loses(0), ties(0), level(0)
-        {}
-};
-class Status{
-    public:
+        //状态信息
         status_t stat;
         char chessman;
         int room_id;
-    public:
-        Status():stat(OFFLINE),chessman(RED),room_id(-1)
-        {}
-};
+        bool is_master;
 
-class Player{
-    private:
-        Basic basic;
-        Score score;
-        Status status;
-        pthread_mutex_t lock;
-        pthread_cond_t cond;
     public:
-        Player(int id_ = -1, std::string passwd_ ="", std::string nick_name_ = ""):\
-            basic(id_, passwd_, nick_name_)
+        Player(int id_ = -1, std::string passwd_ ="", std::string nick_name_ = "")
+            :id(id_),passwd(passwd_),nick_name(nick_name_)
         {
-            pthread_mutex_init(&lock, NULL);
-            pthread_cond_init(&cond, NULL);
+            wins = 0;
+            loses = 0;
+            ties = 0;
+            stat = OFFLINE;
+            chessman = NO;
+            room_id = -1;
+            is_master = false;
         }
         void SetChessColor(char color_)
         {
-            status.chessman = color_;
+            chessman = color_;
         }
-        char GetChessColor()
+        char ChessColor()
         {
-            return status.chessman;
+            return chessman;
         }
         void Online()
         {
-            status.stat = ONLINE;
+            stat = ONLINE;
         }
         void Offline()
         {
-            status.stat = OFFLINE;
+            stat = OFFLINE;
         }
         void Matching()
         {
-            status.stat = MATCHING;
+            stat = MATCHING;
         }
         void Playing()
         {
-            status.stat = PLAYING;
+            stat = PLAYING;
         }
         std::string Passwd()
         {
-            return basic.passwd;
+            return passwd;
         }
         int Id()
         {
-            return basic.id;
+            return id;
         }
-        int Level()
+        int RateOfWin()
         {
-            return score.level;
+            if((wins + loses) == 0){
+                return 0;
+            }
+            return (wins)/(wins + loses);
         }
         status_t Stat()
         {
-            return status.stat;
-        }
-        int Wait()
-        {
-            struct timespec timeout;
-            clock_gettime(CLOCK_REALTIME, &timeout);
-            timeout.tv_sec += WAIT_TIME;
-            return pthread_cond_timedwait(&cond, &lock, &timeout);
-        }
-        void Wakeup()
-        {
-            pthread_cond_signal(&cond);
+            return stat;
         }
         int Room()
         {
-            return status.room_id;
+            return room_id;
         }
         void SetRoom(int room_number_)
         {
-            status.room_id = room_number_;
+            room_id = room_number_;
         }
+       // int Wait()
+       // {
+       //     struct timespec timeout;
+       //     clock_gettime(CLOCK_REALTIME, &timeout);
+       //     timeout.tv_sec += WAIT_TIME;
+       //     return pthread_cond_timedwait(&cond, &lock, &timeout);
+       // }
+       // void Wakeup()
+       // {
+       //     pthread_cond_signal(&cond);
+       // }
         ~Player()
         {
-            pthread_mutex_destroy(&lock);
-            pthread_cond_destroy(&cond);
         }
 };
+
 #endif
 
 
