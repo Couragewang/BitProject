@@ -1,5 +1,6 @@
 #include "rpc_server.h"
 #include "src/Hall.hpp"
+
 using namespace rest_rpc;
 using namespace rpc_service;
 
