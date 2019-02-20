@@ -1,0 +1,1 @@
+/usr/bin/c++   -pthread -std=c++11   CMakeFiles/GobangClient.dir/main.cpp.o  -o GobangClient /usr/lib64/libboost_system-mt.so 

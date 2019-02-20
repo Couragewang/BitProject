@@ -1,0 +1,3 @@
+/home/hb/BitProject/gobang/new/client/CMakeFiles/rebuild_cache.dir
+/home/hb/BitProject/gobang/new/client/CMakeFiles/edit_cache.dir
+/home/hb/BitProject/gobang/new/client/CMakeFiles/GobangClient.dir
