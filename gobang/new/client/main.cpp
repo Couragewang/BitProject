@@ -46,26 +46,30 @@ int main(int argc, char *argv[])
                     if(gbp->Login(id, passwd)){
                         std::cout << "Login Success!" << std::endl;
                         int select2;
-                        Util::Menu2();
-                        std::cin >> select2;
-                        switch(select2){
-                            case MATCH:
-                                {
-                                    int room;
-                                    if(gbp->Match(id, passwd, room)){
-                                        gbp->Game(id, room);
+                        while(1){
+                            Util::Menu2();
+                            std::cin >> select2;
+                            switch(select2){
+                                case MATCH:
+                                    {
+                                        int room;
+                                        if(gbp->Match(id, passwd, room)){
+                                            gbp->Game(id, room);
+                                        }else{
+                                            std::cout << "Match Failed!" << std::endl;
+                                        }
                                     }
-                                }
-                                break;
-                            case LOGOUT:
-                                {
-                                    if(gbp->Logout(id, passwd)){
-                                        std::cout << "Logout Success" << std::endl;
+                                    break;
+                                case LOGOUT:
+                                    {
+                                        if(gbp->Logout(id, passwd)){
+                                            std::cout << "Logout Success" << std::endl;
+                                        }
                                     }
-                                }
-                                break;
-                            default:
-                                break;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }else{
                         std::cout << "Login Failed!" << std::endl;

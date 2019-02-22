@@ -40,7 +40,7 @@ class PlayerManager{
             return ret;
         }
     public:
-        PlayerManager():player_assign_id(0)
+        PlayerManager():player_assign_id(10000)
         {
             pthread_mutex_init(&players_lock, NULL);
         }
@@ -106,6 +106,7 @@ class PlayerManager{
         {
             int room_id = -1;
             while(players[id].Stat() != PLAYING || players[id].Room() == -1){
+                std::cout << "Play wait ..." << std::endl;
                 if(players[id].Wait() == ETIMEDOUT){
                     room_id = -1;
                     break;
@@ -114,7 +115,6 @@ class PlayerManager{
                     room_id = players[id].Room();
                 }
             }
-
             return room_id;
         }
         ~PlayerManager()
@@ -159,6 +159,9 @@ class RoomManager{
             if(room.IsSafe(id, x, y)){
                 room.PlayChess(x, y);
                 room.ChagePlayer();
+                std::cout << "User is safe: " << id << std::endl;
+            }else{
+                std::cout << "User is Unsafe: " << id << std::endl;
             }
             UnlockRooms();
         }
@@ -178,6 +181,16 @@ class RoomManager{
             LockRooms();
             if(rooms.find(room_id) != rooms.end()){
                 result = (rooms[room_id]).IsCurrRight(id);
+            }
+            UnlockRooms();
+            return result;
+        }
+        int Judge(const int &room_id)
+        {
+            int result = 0;
+            LockRooms();
+            if(rooms.find(room_id) != rooms.end()){
+                result = (rooms[room_id]).WhoWin();
             }
             UnlockRooms();
             return result;
@@ -230,12 +243,12 @@ class MatchManager{
                 matching_players++;
                 ret = true;
             }
-            MathThreadWakeup();
             return ret;
         }
         void CheckMatchPool()
         {
             while(matching_players <= 1){
+                std::cout << "matching player is : " << matching_players << std::endl;
                 pthread_cond_wait(&match_cond, &match_lock);
             }
             std::cout << "2 lastest players match..." << std::endl;
@@ -298,6 +311,7 @@ class Hall{
             int rate = pm.PlayerRateOfWin(id);
             mm.PushMatchPool(id, rate);
             mm.UnlockMatchPool();
+            mm.MathThreadWakeup();
             return pm.PlayerWait(id);
         }
         //匹配线程周期性的要执行匹配任务

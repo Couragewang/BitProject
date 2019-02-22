@@ -32,7 +32,7 @@ int Match(connection *conn, const int &id)
 }
 void Move(connection *conn, const int &id, const int &room_id, const int &x, const int &y)
 {
-    return rm.Move(id, room_id, x, y);
+    rm.Move(id, room_id, x, y);
 }
 std::string GetBoard(connection *conn, const int &room_id)
 {
@@ -42,13 +42,16 @@ bool WhoPlay(connection *conn, const int &id, const int &room_id)
 {
     return rm.WhoPlay(id, room_id);
 }
+int Judge(connection *conn, const int &room_id)
+{
+    return rm.Judge(room_id);
+}
 static void *ThreadRoutine(void *arg)
 {
     Hall *hp = (Hall*)arg;
     pthread_detach(pthread_self());
     hp->MatchService();
 }
-
 int main()
 {
 	rpc_server server(PORT, SIZE);
@@ -59,6 +62,7 @@ int main()
     server.register_handler("Move", Move);
     server.register_handler("GetBoard", GetBoard);
     server.register_handler("WhoPlay", WhoPlay);
+    server.register_handler("Judge", Judge);
     pthread_t tid;
     pthread_create(&tid, NULL, ThreadRoutine, &h);
 

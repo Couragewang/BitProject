@@ -43,7 +43,12 @@ class Room{
                     && board[x][y] == ' '){
                 ret = true;
             }
-            return false;
+            std::cout << "curr: " << curr << std::endl;
+            std::cout << "id: " << id << std::endl;
+            std::cout << "x: " << x << std::endl;
+            std::cout << "y: " << y << std::endl;
+            std::cout << "board[x][y]: " << board[x][y] << std::endl;
+            return ret;
         }
         void PlayChess(const int &x, const int &y)
         {
@@ -56,10 +61,71 @@ class Room{
             }else{
                 curr = 0;
             }
+            std::cout << "curr play is : " << curr << std::endl;
         }
         bool IsCurrRight(const int &id)
         {
             return players[curr] == id;
+        }
+        bool IsFull()
+        {
+            for(auto i = 0; i < BOARD_NUM; i++){
+                for(auto j = 0; j < BOARD_NUM; j++){
+                    if(board[i][j] == ' '){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        int WhoWin()
+        {
+            char c = 'N';
+            for(auto i = 0; i < BOARD_NUM; i++){
+                if(board[i][0] == board[i][1] && \
+                   board[i][1] == board[i][2] && \
+                   board[i][2] == board[i][3] && \
+                   board[i][3] == board[i][4] && \
+                   board[i][3] != ' '){
+                    c = board[i][0];
+                    break;
+                }
+                if(board[0][i] == board[1][i] && \
+                   board[1][i] == board[2][i] && \
+                   board[2][i] == board[3][i] && \
+                   board[3][i] == board[4][i] && \
+                   board[4][i] != ' '){
+                    c = board[0][i];
+                    break;
+                }
+            }
+            if((board[0][0] == board[1][1] && board[1][1] == board[2][2] &&\
+                board[2][2] == board[3][3] && board[3][3] == board[4][4] && board[2][2] != ' ') || \
+                (board[0][4] == board[1][3] && board[1][3] == board[2][2] && \
+                     board[2][2] == board[3][1] && board[3][1] == board[4][0] && board[2][2] != ' ') ){
+                c = board[2][2];
+            }
+            if(c != 'N' && IsFull()){
+                c = 'F';
+            }
+            int who_win = 0;
+            switch(c){
+                case 'N':
+                    who_win = 0;
+                    break; //Next
+                case 'F':
+                    who_win = 1; //Full 平局
+                    break;
+                case 'X':
+                    who_win = players[0];
+                    break;
+                case 'O':
+                    who_win = players[1];
+                    break;
+                default:
+                    return -1;
+            }
+            return who_win;
         }
         std::string GetBoard()
         {
