@@ -4,11 +4,11 @@ using namespace std;
 
 int main()
 {
-    const std::string app_id="16296264";
-    const std::string api_key="xNkCCoo4Bt7GGIhGvTlR1BB6";
-    const std::string secret_key="f4BoknKiDUeHmbsHD9ctzBeKHliCtLed";
-    SpeechRec sr(app_id, api_key, secret_key);
-
-
-    cout << "hello Jarvis" << endl;
+    Jarvis js;
+    js.Run();
+//    const std::string tl_api_key = "";
+//    const int user_id = 1;
+//    InterRobot robot(tl_api_key, user_id);
+//    std::string message = "hello";
+//    robot.Talk(message);
 }

@@ -5,7 +5,8 @@ all:client
 server:server.cc
 	g++ -o $@ $^ -I. -lpthread
 client:client.cc
-	g++ -o $@ $^ -I. -Ilib/include -Llib/lib -ljsoncpp -lpthread -static
+	g++ -o $@ $^ -I. -lpthread -ljsoncpp
+#-Ilib/include -Llib/lib -ljsoncpp -lpthread -static
 
 .PHONY:clean
 clean:
