@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include "speech.h"
 #include "base/http.h"//直接使用百度提供的httpclient
+//#include <httplib.h>
 
 #define SPEECH_FILE "temp_file/demo.wav"
 
@@ -68,7 +69,7 @@ class InterRobot{
     private:
         std::string url="openapi.tuling123.com/openapi/api/v2";
         std::string api_key="76637bcc4aec472ea53f3647482bcb29";
-        int user_id = 1;
+        std::string user_id = "1";
         aip::HttpClient client;
     public:
         InterRobot()
@@ -91,19 +92,30 @@ class InterRobot{
         void Talk(std::string &message)
         {
             Json::Value root;
+            Json::Value item1;
+            Json::Value item2;
             root["reqType"] = 0;
-            Json::Value item;
-            item["inputText"] = message;
-            root["perception"] = item;
-            item.clear();
-            item["apiKey"] = api_key;
-            item["userId"] = user_id;
-            root["userInfo"] = item;
-            item.clear();
+            item1["text"] = message;
+            item2["inputText"] = item1;
+            item1.clear();
+            root["perception"] = item2;
+            item2.clear();
+            item2["apiKey"] = api_key;
+            item2["userId"] = user_id;
+            root["userInfo"] = item2;
+            item2.clear();
 
-            std::cout << root.toStyledString() << std::endl;
-            Json::Value result = PostRequest(root);
-            std::cout << result.toStyledString() << std::endl;
+            //std::cout << root.toStyledString() << std::endl;
+            Json::Value ret = PostRequest(root);
+            //std::cout << result.toStyledString() << std::endl;
+            //Json::Value Intent = result["intent"];
+            Json::Value _result = ret["results"];
+            for(auto i = 0; i < _result.size(); i++){
+                Json::Value values = _result[i]["values"];
+                std::cout <<"Robot: "<< values["text"] << std::endl;
+            }
+
+            //std::cout << result.toStyledString() << std::endl;
         }
         ~InterRobot()
         {}
@@ -173,16 +185,14 @@ class Jarvis{
                 message="";
                 bool ret = RecordAndASR(message);
                 if(ret){
-                    std::cout << message << std::endl;
                     std::string cmd;
+                    std::cout << "我: " << message << std::endl;
                     if(MessageIsCommand(message, cmd)){
                         std::cout << cmd << std::endl;
                         //Exec(cmd);
                     }
                     else{
-                        message="hello";
                         robot.Talk(message);
-
                     }
                 }
             }

@@ -39,7 +39,7 @@ int main()
             Json::Value results = root["results"];
             for(auto i = 0; i < results.size(); i++){
                 Json::Value values = results[i]["values"];
-                cout <<"Robot: "<< values["text"];
+                cout <<"Robot: "<< values["text"] << std::endl;
             }
         }
         else{
