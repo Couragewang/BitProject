@@ -16,6 +16,7 @@
 //#include <httplib.h>
 
 #define SPEECH_FILE "temp_file/demo.wav"
+#define PLAY_FILE "temp_file/play.mp3"
 
 //语音识别Speech Recognition
 class SpeechRec{
@@ -53,9 +54,22 @@ class SpeechRec{
             //std::cout << "语音识别结果: " << std::endl << result.toStyledString();
         }
         //语音合成Text To Speech
-        void TTS()
+        void TTS(std::string message)
         {
             std::ofstream ofile;
+            std::string file_ret;
+            std::map<std::string, std::string> options;
+            //options["spd"] = "5";
+            //options["per"] = "2";
+
+            ofile.open(PLAY_FILE, std::ios::out | std::ios::binary);
+            Json::Value result = client->text2audio(message, options, file_ret);
+            if(!file_ret.empty()){
+                ofile << file_ret;
+            }
+            else{
+                std::cout << result.toStyledString();
+            }
         }
         ~SpeechRec()
         {
@@ -89,7 +103,7 @@ class InterRobot{
             reader->parse(response.data(), response.data() + response.size(), &obj, &error);
             return obj;
         }
-        void Talk(std::string &message)
+        std::string Talk(std::string &message)
         {
             Json::Value root;
             Json::Value item1;
@@ -110,10 +124,13 @@ class InterRobot{
             //std::cout << result.toStyledString() << std::endl;
             //Json::Value Intent = result["intent"];
             Json::Value _result = ret["results"];
-            for(auto i = 0; i < _result.size(); i++){
-                Json::Value values = _result[i]["values"];
-                std::cout <<"Robot: "<< values["text"] << std::endl;
-            }
+            Json::Value values = _result[0]["values"];
+            std::cout <<"Robot: "<< values["text"].asString() << std::endl;
+            return values["text"].asString();
+            //for(auto i = 0; i < _result.size(); i++){
+            //    Json::Value values = _result[i]["values"];
+            //    std::cout <<"Robot: "<< values["text"].asString() << std::endl;
+            //}
 
             //std::cout << result.toStyledString() << std::endl;
         }
@@ -177,6 +194,14 @@ class Jarvis{
             }
             return false;
         }
+        bool TTSAndPlay(std::string message)
+        {
+            std::string play = "aplay ";
+            play += PLAY_FILE;
+            sr.TTS(message);
+            Exec(play);
+            return true;
+        }
         void Run()
         {
             volatile bool quit = false;
@@ -192,7 +217,8 @@ class Jarvis{
                         //Exec(cmd);
                     }
                     else{
-                        robot.Talk(message);
+                        std::string play_message = robot.Talk(message);
+                        TTSAndPlay(play_message);
                     }
                 }
             }
