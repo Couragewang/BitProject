@@ -56,11 +56,12 @@ class SpeechRec{
         //语音合成Text To Speech
         void TTS(std::string message)
         {
+            //std::cout << "TTS : " << message << std::endl;
             std::ofstream ofile;
             std::string file_ret;
             std::map<std::string, std::string> options;
-            //options["spd"] = "5";
-            //options["per"] = "2";
+            options["spd"] = "5";
+            options["per"] = "0";
 
             ofile.open(PLAY_FILE, std::ios::out | std::ios::binary);
             Json::Value result = client->text2audio(message, options, file_ret);
@@ -68,8 +69,9 @@ class SpeechRec{
                 ofile << file_ret;
             }
             else{
-                std::cout << result.toStyledString();
+                std::cout << "error: " << result.toStyledString();
             }
+            ofile.close();
         }
         ~SpeechRec()
         {
@@ -148,16 +150,26 @@ class Jarvis{
         {
             command_set.insert(std::make_pair("查看内存。", "free"));
             command_set.insert(std::make_pair("显示当前文件。", "ls -al"));
-            command_set.insert(std::make_pair("查看硬盘信息。", "df -h"));
-            command_set.insert(std::make_pair("关闭防火墙。", "systemctl stop firedwall"));
-            command_set.insert(std::make_pair("打开防火墙。", "systemctl start firedwall"));
+            command_set.insert(std::make_pair("查看硬盘。", "df -h"));
+            command_set.insert(std::make_pair("关闭防火墙。", "systemctl stop firewalld"));
+            command_set.insert(std::make_pair("打开防火墙。", "systemctl start firewalld"));
+            command_set.insert(std::make_pair("跑火车。", "sl"));
         }
-        bool Exec(std::string command)
+        bool Exec(std::string command, bool print)
         {
             FILE *fp = popen(command.c_str(), "r");
             if(NULL == fp){
                 std::cerr << "popen error!" << std::endl;
                 return false;
+            }
+            if(print){
+                char c;
+                std::cout << "--------------------start---------------------" << std::endl;
+                while (fread(&c, 1, 1, fp) > 0){
+                    std::cout << c;
+                }
+                std::cout << std::endl;
+                std::cout << "---------------------end----------------------" << std::endl;
             }
             pclose(fp);
             return true;
@@ -182,7 +194,7 @@ class Jarvis{
 
             std::cout << "...请讲话...";
             fflush(stdout);
-            if(Exec(record)){
+            if(Exec(record, false)){
                 sr.ASR(err_code, message);
                 if(err_code == 0){
                     return true;
@@ -196,10 +208,11 @@ class Jarvis{
         }
         bool TTSAndPlay(std::string message)
         {
-            std::string play = "aplay ";
+            std::string play = "cvlc --play-and-exit ";
             play += PLAY_FILE;
+            play += " >/dev/null 2>&1";
             sr.TTS(message);
-            Exec(play);
+            Exec(play, false);
             return true;
         }
         void Run()
@@ -214,7 +227,7 @@ class Jarvis{
                     std::cout << "我: " << message << std::endl;
                     if(MessageIsCommand(message, cmd)){
                         std::cout << cmd << std::endl;
-                        //Exec(cmd);
+                        Exec(cmd, true);
                     }
                     else{
                         std::string play_message = robot.Talk(message);
