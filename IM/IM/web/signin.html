@@ -390,18 +390,16 @@
             if (passwd.value.length < 6){
                 error = "密码长度必须大于6位"
                 hint()
-                return
             }
             //hit.innerHTML = "密码长度必须大于6位"
             else if (passwd.value != con_pass.value){
                 error = "两次密码不相等"
                 hint()
-                return
             }
                 //hit.innerHTML = "两次密码不相等"
             else if (passwd.value = con_pass.value) {
                 $.ajax({
-                    url: "/signin.html",
+                    url: "/register",
                     type: "POST",
                     data: JSON.stringify({
                         name: user.value,
@@ -410,20 +408,19 @@
                     dataType: "json",
                     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                     success: function(data){
-                        if (data.result == 1 ){
+                        if (data.result != 1 ){
                             alert("名字已经被占用，请更换名字再试!")
-                        }
-                        else if(data.result == 2){
-                            alert("请求方法错误!")
                         }
                         else{
                             alert("注册成功，请登录!")
-                            setTimeout("window.location.reload()", 0)
+                       //     setTimeout(window.location.href='http://192.168.',3);
+                        //    hit.innerHTML = "账号注册成功，两秒后自动刷新页面"
+                            setTimeout("window.location.reload()", 2000)
                         }
                     },
-                    //error: function(e){
-                    //    alert("请求失败，请稍后再试!")
-                    //}
+                    error: function(e){
+                        alert("请求失败，请稍后再试!")
+                    }
                 });
             }
         }
@@ -432,18 +429,8 @@
     //登录按钮
     function login() {
         if (onoff) {
-            if (user.value.length == 0){
-                error = "用户名不能为空"
-                hint()
-                return
-            }
-            if (passwd.value.length == 0){
-                error = "密码不能为空"
-                hint()
-                return
-            }
                 $.ajax({
-                    url: "/login.html",
+                    url: "/login",
                     type: "POST",
                     data: JSON.stringify({
                         name: user.value,
@@ -452,21 +439,16 @@
                     dataType: "json",
                     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                     success: function(data){
-                        if (data.result == 1 ){
+                        if (data.result != 1 ){
                             alert("登录失败，请检查用户名密码!")
                         }
-                        else if(data.result == 2){
-                            alert("请求方法异常，请稍后再试!")
-                        }
                         else{
-                            alert("登录成功")
-                           // window.location.href='www.baidu.com'
-                            location.href("www.baidu.com")
+                            setTimeout(window.location.href='/im.html',3);
                         }
                     },
-                    //error: function(e){
-                    //    alert("登录失败，请检查用户名密码!")
-                    //}
+//                    error: function(e){
+//                        alert("请求失败，请稍后再试!")
+//                    }
                 });
         } else {
             let status = document.getElementById("status").getElementsByTagName("i")

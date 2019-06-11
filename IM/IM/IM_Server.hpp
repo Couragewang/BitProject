@@ -66,9 +66,16 @@ class IM_MysqlClient{
             sql += " AND passwd=md5(";
             sql += Util::InfoToString(_passwd);
             sql += ")";
-            int result = mysql_query(conn, sql.c_str());
-            std::cout <<"sql: " <<sql <<std::endl;
-            return result == 0 ? true : false;
+            bool result = false;
+            if(0 == mysql_query(conn, sql.c_str())){
+                MYSQL_RES *res = mysql_store_result(conn);
+                if(mysql_num_rows(res) > 0){
+                    std::cout <<"debug.....: " << mysql_num_rows(res) << std::endl;
+                    result = true;
+                }
+                free(res);
+            }
+            return result;
         }
         void UpdateUserStatus(std::string &_name, std::string _status)
         {
@@ -151,6 +158,7 @@ class IM_Server{
             s.created = s.last_used = mg_time();
             s.user = name;
             s.id = (uint64_t)(mg_time()*1000000L);//采用时间戳作为session ID，防止冲突，本来应该用sha相关的算法生成，当时简单起见
+            std::cout << "debug: " << s.id <<std::endl;
             s_sessions.push_back(s);
             return s_sessions[s_sessions.size()-1];
         }
@@ -172,7 +180,9 @@ class IM_Server{
                 goto over;
             }
             //字符串转长整型，16进制
-            sid = strtoull(ssid, NULL, 16);
+            //sid = strtoull(ssid, NULL, 16);
+            sid = strtoull(ssid, NULL, 10);
+            std::cout << "client: " << sid <<std::endl;
             size = s_sessions.size();
             for ( ; index < size; index++){
                 if( s_sessions[index].id == sid ){
@@ -229,20 +239,21 @@ class IM_Server{
                 std::string name;
                 std::string passwd;
                 std::string user_info = Util::mr_str_to_string(&hm->body);
-                if(Util::GetNameAndPasswd(user_info, name, passwd)){
+                if(Util::GetNameAndPasswd(user_info, name, passwd) && !name.empty() && !passwd.empty()){
                     if(ctr.IsUserLegal(name, passwd)){
                         auto s = CreateSession(name);
                         std::stringstream ss;
                         ss << "Set-Cookie: " << SESSION_COOKIE_NAME << "=" << s.id << "; path=/";
                         std::string shead = ss.str();
                         mg_http_send_redirect(nc, 302, mg_mk_str("/"), mg_mk_str(shead.c_str()));
-                        std::cout << s.user << "Logged In, sid : " << s.id << std::endl;
+                        std::cout << s.user << " Logged In, sid : " << s.id << std::endl;
                     }
                     else{
                         result = 1;
                         mg_printf(nc, "HTTP/1.0 403 Unanthorized\r\n\r\n");
                         mg_printf(nc, "{\"result\": %d}\r\n", result);
                     }
+                    //mg_printf(nc, "HTTP/1.0 200 OK\r\n\r\n");
                 }
                 else{
                     result = 2;
@@ -259,7 +270,7 @@ class IM_Server{
             if(ev != MG_EV_HTTP_REQUEST){ //mongoose 样例的bug，链接关闭的事件也会触发...
                 return;
             }
-            std::cout << "aaaaa" <<std::endl;
+        //    std::cout << "aaaaa" <<std::endl;
             struct http_message *hm = (struct http_message*)ev_data;
             if(mg_vcmp(&hm->method, "POST") != 0){
                 mg_serve_http(nc, hm, http_opts);
@@ -269,7 +280,7 @@ class IM_Server{
                 std::string name;
                 std::string passwd;
                 std::string user_info = Util::mr_str_to_string(&hm->body);
-                if(Util::GetNameAndPasswd(user_info, name, passwd)){
+                if(Util::GetNameAndPasswd(user_info, name, passwd) && !name.empty() && !passwd.empty()){
                     std::string status = OFFLINE;
                     if(!ctr.AddUser(name, passwd, status)){
                         result = 1; //插入失败，已经存在该用户
@@ -283,10 +294,8 @@ class IM_Server{
                 mg_printf(nc, "{\"result\": %d}", result);
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
-            (void)ev;
         }
-        static void EventHandler(struct mg_connection *nc, \
-                int ev, void *ev_data)
+        static void EventHandler(struct mg_connection *nc, int ev, void *ev_data)
         {
             switch(ev){
                 case MG_EV_HTTP_REQUEST:{
@@ -294,14 +303,16 @@ class IM_Server{
                         int index = GetSession(hm);
                         if(index < 0){
                             //获取session失败，说明用户从未登录过,重定向到登录页面
+                            std::cout << "获取session失败，说明用户从未登录过,重定向到登录页面" <<std::endl;
                             mg_http_send_redirect(nc, 302, mg_mk_str("/login.html"), mg_mk_str(NULL));
                             nc->flags |= MG_F_SEND_AND_CLOSE;
                             break; //重定向完毕，退出事件处理逻辑，关闭链接
-
                         }
                         //获取session成功，保存
+                        std::cout << "获取session成功，保存" << std::endl;
                         nc->user_data = new int(index);
                         mg_serve_http(nc, hm, http_opts);
+                        //mg_http_send_redirect(nc, 302, mg_mk_str("/"), mg_mk_str(NULL));
                     }
                     break;
                 case MG_EV_WEBSOCKET_HANDSHAKE_DONE:{
@@ -353,7 +364,7 @@ class IM_Server{
             mg_set_protocol_http_websocket(nc);
             mg_register_http_endpoint(nc, "/login.html", IM_Server::LoginHandler);
 
-            mg_register_http_endpoint(nc, "/sign_in.html", IM_Server::SigninHandler);
+            mg_register_http_endpoint(nc, "/signin.html", IM_Server::SigninHandler);
             //mg_register_http_endpoint(nc, "/logout.html", IM_Server::LoginHandler);
             mg_set_timer(nc, mg_time() + SESSION_CHECK_INTERVAL);
         }
