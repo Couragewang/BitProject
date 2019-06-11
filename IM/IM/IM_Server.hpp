@@ -215,9 +215,11 @@ class IM_Server{
                 mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, info.c_str(), info.size());
             }
         }
-        static void LoginHandler(struct mg_connection *nc,\
-                int ev, void *ev_data)
+        static void LoginHandler(struct mg_connection *nc, int ev, void *ev_data)
         {
+            if(ev != MG_EV_HTTP_REQUEST){ //mongoose 样例的bug，链接关闭的事件也会触发...
+                return;
+            }
             struct http_message *hm = (struct http_message*)ev_data;
             if(mg_vcmp(&hm->method, "POST") != 0){
                 mg_serve_http(nc, hm, http_opts);
@@ -254,6 +256,10 @@ class IM_Server{
 
         static void SigninHandler(struct mg_connection *nc, int ev, void *ev_data)
         {
+            if(ev != MG_EV_HTTP_REQUEST){ //mongoose 样例的bug，链接关闭的事件也会触发...
+                return;
+            }
+            std::cout << "aaaaa" <<std::endl;
             struct http_message *hm = (struct http_message*)ev_data;
             if(mg_vcmp(&hm->method, "POST") != 0){
                 mg_serve_http(nc, hm, http_opts);
@@ -368,8 +374,4 @@ IM_Controller IM_Server::ctr;
 std::vector<struct session> IM_Server::s_sessions(SESSION_NUM);
 
 #endif
-
-
-
-
 

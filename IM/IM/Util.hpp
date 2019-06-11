@@ -18,7 +18,8 @@ class Util{
         static std::string mr_str_to_string(struct mg_str *str)
         {
             std::string outstring;
-            for(auto i = 0; i < str->len; i++){
+            int len = str->len;
+            for(auto i = 0; i < len; i++){
                 outstring.push_back(str->p[i]);
             }
             return outstring;
