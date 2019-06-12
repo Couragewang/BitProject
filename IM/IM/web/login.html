@@ -417,8 +417,8 @@
                             alert("请求方法错误!")
                         }
                         else{
-                            alert("注册成功，请登录!")
-                            setTimeout("window.location.reload()", 0)
+                        //    alert("注册成功，请登录!")
+                        //    setTimeout("window.location.reload()", 0)
                         }
                     },
                     //error: function(e){
@@ -452,21 +452,19 @@
                     dataType: "json",
                     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                     success: function(data){
-                        if (data.result == 1 ){
-                            alert("登录失败，请检查用户名密码!")
-                        }
-                        else if(data.result == 2){
-                            alert("请求方法异常，请稍后再试!")
-                        }
-                        else{
-                            alert("登录成功")
-                           // window.location.href='www.baidu.com'
-                            location.href("www.baidu.com")
-                        }
+                        //alert("登录成功")
+                        window.location.href='index.html'
                     },
-                    //error: function(e){
-                    //    alert("登录失败，请检查用户名密码!")
-                    //}
+                    error: function(e){
+                        alert(e)
+                        alert(e.result)
+                       // if (data.result == 1 ){
+                       //       alert("登录失败，请检查用户名密码!")
+                       //   }
+                       //   else if(data.result == 2){
+                       //       alert("请求方法异常，请稍后再试!")
+                       //   }
+                    }
                 });
         } else {
             let status = document.getElementById("status").getElementsByTagName("i")

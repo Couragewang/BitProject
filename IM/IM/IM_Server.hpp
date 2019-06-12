@@ -24,8 +24,9 @@
 
 #define SESSION_TTL 600.0
 #define SESSION_CHECK_INTERVAL 5.0
-#define SESSION_NUM 64
+#define SESSION_NUM 128  //必须是确定大小的数组，不能超过！！
 #define SESSION_COOKIE_NAME "IM"
+#define SESSION_COOKIE_USER "NAME"
 
 struct session{
     uint64_t id;
@@ -135,7 +136,7 @@ class IM_Server{
         struct mg_connection *nc;
         //访问用户数据库
         static IM_Controller ctr;
-        static std::vector<struct session> s_sessions;
+        static struct session s_sessions[SESSION_NUM];
     public:
         IM_Server(std::string _port = "8080")
             :port(_port)
@@ -152,24 +153,30 @@ class IM_Server{
         {
             return (nc->flags & MG_F_IS_WEBSOCKET) ? true : false;
         }
-        static struct session& CreateSession(std::string &name)
+        static struct session* CreateSession(std::string &name)
         {
-            struct session s;
-            s.created = s.last_used = mg_time();
-            s.user = name;
-            s.id = (uint64_t)(mg_time()*1000000L);//采用时间戳作为session ID，防止冲突，本来应该用sha相关的算法生成，当时简单起见
-            std::cout << "debug: " << s.id <<std::endl;
-            s_sessions.push_back(s);
-            return s_sessions[s_sessions.size()-1];
+            int i = 0;
+            for(; i < SESSION_NUM; i++){
+                if(s_sessions[i].id == 0){
+                    break;
+                }
+            }
+            if( i < SESSION_NUM ){
+                s_sessions[i].created = s_sessions[i].last_used = mg_time();
+                s_sessions[i].user = name;
+                s_sessions[i].id = (uint64_t)(mg_time()*1000000L);//采用时间戳作为session ID，防止冲突，本来应该用sha相关的算法生成，当时简单起见
+                return &s_sessions[i];
+            }
+            return NULL;
         }
-        static int GetSession(struct http_message *hm)
+        static struct session* GetSession(struct http_message *hm)
         {
             //goto 不要越过变量的定义
             uint64_t sid = 0;
             int index = 0;
-            int size = 0;
             char ssid[32];
             char *ssid_p = ssid;
+            struct session *s = NULL;
 
             struct mg_str *cookie_header = mg_get_http_header(hm, "cookie");
             if(NULL == cookie_header){
@@ -182,11 +189,11 @@ class IM_Server{
             //字符串转长整型，16进制
             //sid = strtoull(ssid, NULL, 16);
             sid = strtoull(ssid, NULL, 10);
-            std::cout << "client: " << sid <<std::endl;
-            size = s_sessions.size();
-            for ( ; index < size; index++){
+
+            for ( ; index < SESSION_NUM; index++){
                 if( s_sessions[index].id == sid ){
-                    s_sessions[index].last_used = mg_time();
+                    s = &s_sessions[index];
+                    s->last_used = mg_time();
                     goto over;
                 }
             }
@@ -195,25 +202,21 @@ class IM_Server{
             if(ssid_p != ssid){
                 free(ssid_p);
             }
-            if(index == size){
-                index = -1;
-            }
-            return index;
+            return s;
+        }
+        static void DestroySession(struct session *s)
+        {
+            s->id = 0; //只要将id设置为0，即代表该session失效
         }
         //定期检查session是否超时，超时的话，就移除该session
         static void CheckSessions(void)
         {
             //获取当前时间，减去session生命周期
             double threadhold = mg_time() - SESSION_TTL;
-            auto it = s_sessions.begin();
-            for(; it != s_sessions.end(); ){
-                //当前的用户是合法用户，并且超时了,就要删除它，注意序列式容器的迭代器失效的问题
-                if(it->id != 0 && it->last_used < threadhold){
-                    std::cout << "Session: " << it->id << " User: " << it->user << " idle long time...close" << std::endl;
-                    it = s_sessions.erase(it);
-                }
-                else{
-                    ++it;
+            for(auto i = 0; i < SESSION_NUM; i++){
+                if(s_sessions[i].id != 0 && s_sessions[i].last_used < threadhold){
+                    std::cerr << "Session: " << s_sessions[i].id << " User: " << s_sessions[i].user << " idle long time...close" << std::endl;
+                    DestroySession(&s_sessions[i]);
                 }
             }
         }
@@ -224,6 +227,11 @@ class IM_Server{
                 //if(nc == c) continue;
                 mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, info.c_str(), info.size());
             }
+        }
+        static void QuitUser(struct mg_connection *nc, std::string info)
+        {
+            mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, info.c_str(), info.size());
+            nc->flags |= MG_F_SEND_AND_CLOSE;
         }
         static void LoginHandler(struct mg_connection *nc, int ev, void *ev_data)
         {
@@ -241,28 +249,33 @@ class IM_Server{
                 std::string user_info = Util::mr_str_to_string(&hm->body);
                 if(Util::GetNameAndPasswd(user_info, name, passwd) && !name.empty() && !passwd.empty()){
                     if(ctr.IsUserLegal(name, passwd)){
-                        auto s = CreateSession(name);
-                        std::stringstream ss;
-                        ss << "Set-Cookie: " << SESSION_COOKIE_NAME << "=" << s.id << "; path=/";
-                        std::string shead = ss.str();
-                        mg_http_send_redirect(nc, 302, mg_mk_str("/"), mg_mk_str(shead.c_str()));
-                        std::cout << s.user << " Logged In, sid : " << s.id << std::endl;
+                        struct session *s = CreateSession(name);
+                        if(s){
+                            std::stringstream ss;
+                            ss << "Set-Cookie: " << SESSION_COOKIE_NAME << "=" << s->id << "; path=/\r\n";
+                            ss << "Set-Cookie: " << SESSION_COOKIE_USER << "=" << s->user << "; path=/";
+                            std::string shead = ss.str();
+
+                            mg_printf(nc, "HTTP/1.1 200 OK\r\n%*s\r\n\r\n",shead.size(), shead.c_str());
+                            mg_printf(nc, "{\"result\": %d}\r\n", result);
+                        }
+                        else{
+                            //TODO
+                        }
                     }
                     else{
                         result = 1;
-                        mg_printf(nc, "HTTP/1.0 403 Unanthorized\r\n\r\n");
+                        mg_printf(nc, "HTTP/1.1 403 Unanthorized\r\n\r\n");
                         mg_printf(nc, "{\"result\": %d}\r\n", result);
                     }
-                    //mg_printf(nc, "HTTP/1.0 200 OK\r\n\r\n");
                 }
                 else{
                     result = 2;
-                    mg_printf(nc, "HTTP/1.0 400 Bad Request\r\n\r\n");
+                    mg_printf(nc, "HTTP/1.1 400 Bad Request\r\n\r\n");
                     mg_printf(nc, "{\"result\": %d}\r\n", result);
                 }
                 nc->flags |= MG_F_SEND_AND_CLOSE; //相应完毕，完毕链接
             }
-            (void)ev;//防止未使用变量引起的警告
         }
 
         static void SigninHandler(struct mg_connection *nc, int ev, void *ev_data)
@@ -285,11 +298,11 @@ class IM_Server{
                     if(!ctr.AddUser(name, passwd, status)){
                         result = 1; //插入失败，已经存在该用户
                     }
-                    mg_printf(nc, "HTTP/1.0 200 OK\r\n\r\n");
+                    mg_printf(nc, "HTTP/1.1 200 OK\r\n\r\n");
                 }
                 else{
                     result = 2; //请求有错误
-                    mg_printf(nc, "HTTP/1.0 400 Bad Request\r\n\r\n");
+                    mg_printf(nc, "HTTP/1.1 400 Bad Request\r\n\r\n");
                 }
                 mg_printf(nc, "{\"result\": %d}", result);
                 nc->flags |= MG_F_SEND_AND_CLOSE;
@@ -300,48 +313,40 @@ class IM_Server{
             switch(ev){
                 case MG_EV_HTTP_REQUEST:{
                         struct http_message *hm = (struct http_message*)ev_data;
-                        int index = GetSession(hm);
-                        if(index < 0){
+                        struct session *s = GetSession(hm);
+                        if(!s){
                             //获取session失败，说明用户从未登录过,重定向到登录页面
-                            std::cout << "获取session失败，说明用户从未登录过,重定向到登录页面" <<std::endl;
+                            std::cerr << "request index.html, no session, redirect login.html" <<std::endl;
                             mg_http_send_redirect(nc, 302, mg_mk_str("/login.html"), mg_mk_str(NULL));
                             nc->flags |= MG_F_SEND_AND_CLOSE;
                             break; //重定向完毕，退出事件处理逻辑，关闭链接
                         }
                         //获取session成功，保存
-                        std::cout << "获取session成功，保存" << std::endl;
-                        nc->user_data = new int(index);
+                        std::cerr << "have default session, login success" << std::endl;
+                        //nc->user_data = s;
+                        //std::cout << "login nc addr: " << nc << std::endl;
                         mg_serve_http(nc, hm, http_opts);
-                        //mg_http_send_redirect(nc, 302, mg_mk_str("/"), mg_mk_str(NULL));
                     }
                     break;
                 case MG_EV_WEBSOCKET_HANDSHAKE_DONE:{
-                        int index = *((int*)nc->user_data);
-                        std::string name = s_sessions[index].user;
-                        std::string tips = name;
-                        tips += "++ join";
+                        //struct session *s = (struct session*)nc->user_data;
+                        //std::cout << "Done nc addr: " << nc << std::endl;
+                        //std::string tips = s->user;
+                        std::string tips = "---有新人加入，大家欢迎:)---";
                         Broadcast(nc, tips);
                     }
                     break;
                 case MG_EV_WEBSOCKET_FRAME:{
-                        int index = *((int*)nc->user_data);
-                        std::string name = s_sessions[index].user;
-
                         struct websocket_message *wm = (struct websocket_message*)ev_data;
                         struct mg_str d = {(char *) wm->data, wm->size};
                         std::string message = Util::mr_str_to_string(&d);
-                        name += ">>> ";
-                        name += message;
-                        Broadcast(nc, name);
+                        Broadcast(nc, message);
                     }
                     break;
                 case MG_EV_CLOSE:{
                         if(IsWebsocket(nc)){
-                            int *p = (int*)nc->user_data;
-                            std::string name = s_sessions[*p].user;
-                            std::string tips = name;
-                            tips += " ++ left";
-                            Broadcast(nc, tips);
+                            std::string message = "---用户退出---";
+                            Broadcast(nc, message);
                         }
                     }
                     break;
@@ -382,7 +387,7 @@ class IM_Server{
 //静态变量初始化
 volatile bool IM_Server::quit = false;
 IM_Controller IM_Server::ctr;
-std::vector<struct session> IM_Server::s_sessions(SESSION_NUM);
+struct session IM_Server::s_sessions[SESSION_NUM] = {0};
 
 #endif
 
