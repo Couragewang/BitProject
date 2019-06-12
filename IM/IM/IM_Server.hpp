@@ -332,7 +332,7 @@ class IM_Server{
                         //struct session *s = (struct session*)nc->user_data;
                         //std::cout << "Done nc addr: " << nc << std::endl;
                         //std::string tips = s->user;
-                        std::string tips = "---有新人加入，大家欢迎:)---";
+                        std::string tips = "... 有新人加入，大家欢迎...";
                         Broadcast(nc, tips);
                     }
                     break;
@@ -345,7 +345,7 @@ class IM_Server{
                     break;
                 case MG_EV_CLOSE:{
                         if(IsWebsocket(nc)){
-                            std::string message = "---用户退出---";
+                            std::string message = "...有用户退出...";
                             Broadcast(nc, message);
                         }
                     }

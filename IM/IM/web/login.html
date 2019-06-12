@@ -417,8 +417,8 @@
                             alert("请求方法错误!")
                         }
                         else{
-                        //    alert("注册成功，请登录!")
-                        //    setTimeout("window.location.reload()", 0)
+                            alert("注册成功，请直接登录!")
+                            setTimeout("window.location.reload()", 0)
                         }
                     },
                     //error: function(e){
@@ -456,8 +456,7 @@
                         window.location.href='index.html'
                     },
                     error: function(e){
-                        alert(e)
-                        alert(e.result)
+                        alert("登录失败")
                        // if (data.result == 1 ){
                        //       alert("登录失败，请检查用户名密码!")
                        //   }
