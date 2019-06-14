@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <fstream>
 #include <string>
 #include <map>
 #include <unistd.h>
@@ -140,6 +141,8 @@ class InterRobot{
         {}
 };
 
+#define CMD_ETC "command.etc"
+
 class Jarvis{
     private:
         SpeechRec sr;
@@ -148,12 +151,32 @@ class Jarvis{
     public:
         Jarvis()
         {
-            command_set.insert(std::make_pair("查看内存。", "free"));
-            command_set.insert(std::make_pair("显示当前文件。", "ls -al"));
-            command_set.insert(std::make_pair("查看硬盘。", "df -h"));
-            command_set.insert(std::make_pair("关闭防火墙。", "systemctl stop firewalld"));
-            command_set.insert(std::make_pair("打开防火墙。", "systemctl start firewalld"));
-            command_set.insert(std::make_pair("跑火车。", "sl"));
+            char buffer[256];
+            std::ifstream in(CMD_ETC);
+            if(!in.is_open()){
+                std::cerr << "open file error" <<std::endl;
+                exit(1);
+            }
+            std::string sep = ":";
+            while(in.getline(buffer, sizeof(buffer))){
+                std::string str = buffer;
+                std::size_t pos = str.find(sep);
+                if(std::string::npos == pos){
+                    std::cerr << "Load Etc Error" << std::endl;
+                    exit(2);
+                }
+                std::string k = str.substr(0, pos);
+                std::string v = str.substr(pos+sep.size());
+                k+="。";
+                command_set.insert(std::make_pair(k, v));
+            }
+            std::cout << "Load command etc ... done" << std::endl;
+            in.close();
+        //    command_set.insert(std::make_pair("显示当前文件。", "ls -al"));
+        //    command_set.insert(std::make_pair("查看硬盘。", "df -h"));
+        //    command_set.insert(std::make_pair("关闭防火墙。", "systemctl stop firewalld"));
+        //    command_set.insert(std::make_pair("打开防火墙。", "systemctl start firewalld"));
+        //    command_set.insert(std::make_pair("跑火车。", "sl"));
         }
         bool Exec(std::string command, bool print)
         {
@@ -226,8 +249,14 @@ class Jarvis{
                     std::string cmd;
                     std::cout << "我: " << message << std::endl;
                     if(MessageIsCommand(message, cmd)){
-                        std::cout << cmd << std::endl;
-                        Exec(cmd, true);
+                        if(message == "退出。"){
+                            TTSAndPlay("好的");
+                            std::cout << "bye bye ... :)" << std::endl;
+                            quit = true;
+                        }
+                        else{
+                            Exec(cmd, true);
+                        }
                     }
                     else{
                         std::string play_message = robot.Talk(message);
