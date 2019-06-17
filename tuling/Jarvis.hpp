@@ -57,7 +57,7 @@ class SpeechRec{
         //语音合成Text To Speech
         void TTS(std::string message)
         {
-            //std::cout << "TTS : " << message << std::endl;
+            std::cout << "TTS : " << message << std::endl;
             std::ofstream ofile;
             std::string file_ret;
             std::map<std::string, std::string> options;
@@ -180,6 +180,7 @@ class Jarvis{
         }
         bool Exec(std::string command, bool print)
         {
+            //std::cout << command << std::endl;
             FILE *fp = popen(command.c_str(), "r");
             if(NULL == fp){
                 std::cerr << "popen error!" << std::endl;
@@ -211,7 +212,7 @@ class Jarvis{
         bool RecordAndASR(std::string &message)
         {
             int err_code = -1;
-            std::string record = "arecord -t wav -c 1 -r 16000 -d 3 -f S16_LE ";
+            std::string record = "arecord -t wav -c 1 -r 16000 -d 5 -f S16_LE ";
             record += SPEECH_FILE;
             record += ">/dev/null 2>&1"; //不显示输出结果或者消息
 
